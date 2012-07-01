@@ -1,12 +1,12 @@
 ﻿ThreeOctree.js
 ========
 
-#### (sparse + dynamic) 3D spatial representation structure for fast searches ####
+#### (sparse + dynamic) 3D spatial representation structure for fast searches####
 
 The aim of this project is to create a fully featured octree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/). There are other Octree scripts out there, but I could not find any that had all the capabilities I needed.  
   
   
-### Current capabilities ###  
+### Current capabilities###
 
 * handle complete objects ( i.e. 1 center position for entire geometry )
 * handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
@@ -20,13 +20,13 @@ The aim of this project is to create a fully featured octree for the [THREE.js W
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
   
   
-### Usage ###
+### Usage###
 
-Download the [minified script](http://collinhover.github.com/threeoctree/ThreeOctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
+Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/ThreeOctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
 
 ```html
 <script src="js/Three.js"></script>
-<script src="js/ThreeOctree.js"></script>
+<script src="js/ThreeOctree.min.js"></script>
 ```
   
 The following code shows an example of how to get started (see comments for details):   
