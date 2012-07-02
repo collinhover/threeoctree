@@ -1,22 +1,10 @@
 /*
  *
- * ThreeOctree.js
+ * ThreeOctree.js / https://github.com/collinhover/threeoctree
  * (sparse) dynamic 3D spatial representation structure for fast searches.
  * 
  * @author Collin Hover / http://collinhover.com/
  * based on Dynamic Octree by Piko3D @ http://www.piko3d.com/ and Octree by Marek Pawlowski @ pawlowski.it 
- *
- * Octree capabilities:
- * - handle complete objects ( i.e. 1 center position for entire geometry )
- * - handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
- * - handle both objects and faces together in a single octree
- * - split ( 1 larger octree node > up to 8 smaller octree nodes )
- * - merge ( up to 8 smaller octree nodes > 1 larger octree node )
- * - expand ( 1 smaller octree node > 1 larger octree node + original smaller octree node + up to 7 other smaller octree nodes ) 
- * - contract ( 1 larger octree node + entire subtree > 1 smaller octree node )
- * - update ( account for moving objects, trade-off is performance and is not recommended )
- * - search by position and radius ( i.e. sphere search )
- * - search by ray ( uses ray position, direction, and distance/far )
  *
  */
 
@@ -609,7 +597,7 @@ THREE.OctreeNode = function ( parameters ) {
 	// reset and assign parent
 	
 	this.reset();
-	this.parent = parameters.parent;
+	this.parent_set( parameters.parent );
 	
 	// additional properties
 	
@@ -647,6 +635,22 @@ THREE.OctreeNode.prototype = {
 	ensure_array: function ( target ) {
 		
 		return target ? ( this.is_array ( target ) !== true ? [ target ] : target ) : [];
+		
+	},
+	
+	parent_set: function ( parent ) {
+		
+		// store new parent
+		
+		if ( parent !== this && this.parent !== parent ) {
+			
+			this.parent = parent;
+			
+			// update properties
+			
+			this.properties_update_cascade();
+			
+		}
 		
 	},
 	
@@ -695,7 +699,7 @@ THREE.OctreeNode.prototype = {
 			
 			node = nodesByIndex[ nodesIndices[ i ] ];
 			
-			node.parent = undefined;
+			node.parent_set( undefined );
 			
 			if ( cascade === true ) {
 				
@@ -729,7 +733,7 @@ THREE.OctreeNode.prototype = {
 		
 		if ( node.parent !== this ) {
 			
-			node.parent = this;
+			node.parent_set( this );
 			
 		}
 		
@@ -787,7 +791,7 @@ THREE.OctreeNode.prototype = {
 			
 			if ( node.parent === this ) {
 				
-				node.parent = undefined;
+				node.parent_set( undefined );
 				
 			}
 			
@@ -1960,23 +1964,3 @@ THREE.OctreeNode.prototype = {
 	}
 	
 };
-
-Object.defineProperty( THREE.OctreeNode.prototype, 'parent', { 
-	get : function () { return this._parent; },
-	set : function ( parent ) {
-		
-		// store new parent
-		
-		if ( parent !== this ) {
-			
-			this._parent = parent;
-			
-		}
-		
-		// update properties
-		
-		this.properties_update_cascade();
-		
-	}
-	
-} );
