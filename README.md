@@ -11,6 +11,7 @@ The aim of this project is to create a fully featured octree for the [THREE.js W
 * handle complete objects ( i.e. 1 center position for entire geometry )
 * handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
 * handle both objects and faces together in a single octree
+* overlaping nodes to help sort objects that overlap multiple nodes much more efficiently ( overlap is percentage based )
 * split ( 1 larger octree node > up to 8 smaller octree nodes )
 * merge ( up to 8 smaller octree nodes > 1 larger octree node )
 * expand ( 1 smaller octree node > 1 larger octree node + original smaller octree node + up to 7 other smaller octree nodes ) 
