@@ -626,7 +626,7 @@ THREE.OctreeNode = function ( parameters ) {
 	
 	if ( this.tree.scene ) {
 		
-		this.visual = new THREE.Mesh( new THREE.CubeGeometry( this.radiusOverlap * 2, this.radiusOverlap * 2, this.radiusOverlap * 2 ), new THREE.MeshBasicMaterial( { color: 0xFF0000, wireframe: true, wireframeLinewidth: 10 } ) );
+		this.visual = new THREE.Mesh( new THREE.CubeGeometry( this.radiusOverlap * 2, this.radiusOverlap * 2, this.radiusOverlap * 2 ), new THREE.MeshBasicMaterial( { color: 0xFF0000, wireframe: true, wireframeLinewidth: 1 } ) );
 		this.visual.position.copy( this.position );
 		this.tree.scene.add( this.visual );
 		
