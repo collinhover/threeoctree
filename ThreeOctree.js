@@ -6,8 +6,6 @@
  * @author Collin Hover / http://collinhover.com/
  * based on Dynamic Octree by Piko3D @ http://www.piko3d.com/ and Octree by Marek Pawlowski @ pawlowski.it 
  *
- * Licensed under the terms of the GNU General Public License and is free software.
- *
  * Octree capabilities:
  * - handle complete objects ( i.e. 1 center position for entire geometry )
  * - handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
