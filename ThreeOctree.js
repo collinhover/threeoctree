@@ -238,7 +238,7 @@ THREE.Octree.prototype = {
 				
 				objectData = objectsData[ i ];
 				
-				this.add( objectData, objectData.useFaces );
+				this.add( objectData, objectData.usesFaces() );
 				
 			}
 			
@@ -507,7 +507,7 @@ THREE.OctreeObjectData.prototype = {
 	
 	update: function () {
 		
-		if ( this.useFaces ) {
+		if ( this.usesFaces() ) {
 			
 			this.radius = this.face_bounding_radius( this.object, this.faces );
 			this.object.matrixWorld.multiplyVector3( this.position.copy( this.faces.centroid ) );
@@ -554,13 +554,15 @@ THREE.OctreeObjectData.prototype = {
 		
 		return radius;
 		
+	},
+	
+	usesFaces: function () {
+		
+		return this.faces instanceof THREE.Face3 || this.faces instanceof THREE.Face4;
+		
 	}
 	
 };
-
-Object.defineProperty( THREE.OctreeObjectData.prototype, 'useFaces', { 
-	get : function () { return this.faces instanceof THREE.Face3 || this.faces instanceof THREE.Face4; }
-} );
 
 /*===================================================
 
