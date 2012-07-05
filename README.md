@@ -3,7 +3,7 @@
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches####
 
-The aim of this project is to create a fully featured octree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/). There are other Octree scripts out there, but I could not find any that had all the capabilities I needed.  
+The aim of this project is to create a fully featured octree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
   
 ### Current capabilities###
@@ -19,6 +19,7 @@ The aim of this project is to create a fully featured octree for the [THREE.js W
 * update ( account for moving objects, trade-off is performance and is not recommended )
 * search by position and radius ( i.e. sphere search )
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
+* raycast search results using built in THREE.Ray additions ( does not modify the Ray except to add new functions )
   
   
 ### Usage###
@@ -29,8 +30,87 @@ Download the [minified script](https://github.com/collinhover/threeoctree/blob/m
 <script src="js/Three.js"></script>
 <script src="js/ThreeOctree.min.js"></script>
 ```
+
+#### Initialize####
+
+```html
+<script>
+var octree = new THREE.Octree({
+	radius: radius, // optional, default = 1, octree will grow and shrink as needed
+	depthMax: -1, // optional, default = -1, infinite depth
+	objectsThreshold: 8, // optional, default = 8
+	overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
+	scene: scene // optional, pass scene as parameter only if you wish to visualize octree
+} );
+</script>
+```
+
+#### Add/Remove Objects####
+
+Add three object as single octree object:  
   
-The following code shows an example of how to get started (see comments for details):   
+```html
+<script>
+octree.add( object );
+</script>
+```
+  
+Add three object's faces as octree objects:  
+  
+```html
+<script>
+octree.add( object, true );
+</script>
+```
+
+Remove all octree objects associated with three object:  
+  
+```html
+<script>
+octree.remove( object );
+</script>
+```
+
+#### Search####
+
+Search octree at a position in all directions for radius distance:  
+  
+```html
+<script>
+octree.search( position, radius );
+</script>
+```
+
+Search octree and organize results by object (i.e. all faces belonging to three object in one list vs a result for each face):  
+  
+```html
+<script>
+octree.search( position, radius, true );
+</script>
+```
+
+Search octree using a ray:  
+  
+```html
+<script>
+octree.search( ray.origin, ray.far, true, ray.direction );
+</script>
+```
+
+#### Intersections####
+
+This octree adds two functions to the THREE.Ray class to help use the search results: ray.intersectOctreeObjects, and ray.intersectOctreeObject. In most cases you will use only the former:  
+  
+```html
+<script>
+var octreeResults = octree.search( ray.origin, ray.far, true, ray.direction )
+var intersections = ray.intersectOctreeObjects( octreeResults );
+</script>
+```
+
+#### Example####
+
+The following code shows a working example (see comments for details):   
   
 ```html
 <script>
@@ -75,11 +155,7 @@ The following code shows an example of how to get started (see comments for deta
 		// create octree
 		
 		octree = new THREE.Octree( {
-			radius: radius, // optional, default = 1, octree will grow and shrink as needed
-			depthMax: -1, // optional, default = -1, infinite depth
-			objectsThreshold: 8, // optional, default = 8
-			overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
-			scene: scene // optional, pass scene as parameter only if you wish to visualize octree
+			scene: scene
 		} );
 		
 		// create object to show search radius and add to scene
@@ -248,4 +324,4 @@ The following code shows an example of how to get started (see comments for deta
   
 *Copyright (C) 2012 [Collin Hover](http://collinhover.com/)*  
 *Based on Dynamic Octree by [Piko3D](http://www.piko3d.com/) and Octree by [Marek Pawlowski](pawlowski.it)*  
-*For full license and information, see [LICENSE](https://collinhover.github.com/threeoctree/LICENSE) and [COPYING](https://collinhover.github.com/threeoctree/COPYING).*   
+*For full license and information, see [LICENSE](https://collinhover.github.com/threeoctree/LICENSE).*   
