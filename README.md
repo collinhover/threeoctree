@@ -34,7 +34,6 @@ Download the [minified script](https://github.com/collinhover/threeoctree/blob/m
 #### Initialize####
 
 ```html
-<script>
 var octree = new THREE.Octree({
 	radius: radius, // optional, default = 1, octree will grow and shrink as needed
 	depthMax: -1, // optional, default = -1, infinite depth
@@ -42,7 +41,6 @@ var octree = new THREE.Octree({
 	overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
 	scene: scene // optional, pass scene as parameter only if you wish to visualize octree
 } );
-</script>
 ```
 
 #### Add/Remove Objects####
@@ -50,25 +48,19 @@ var octree = new THREE.Octree({
 Add three object as single octree object:  
   
 ```html
-<script>
 octree.add( object );
-</script>
 ```
   
 Add three object's faces as octree objects:  
   
 ```html
-<script>
 octree.add( object, true );
-</script>
 ```
 
 Remove all octree objects associated with three object:  
   
 ```html
-<script>
 octree.remove( object );
-</script>
 ```
 
 #### Search####
@@ -76,25 +68,19 @@ octree.remove( object );
 Search octree at a position in all directions for radius distance:  
   
 ```html
-<script>
 octree.search( position, radius );
-</script>
 ```
 
 Search octree and organize results by object (i.e. all faces belonging to three object in one list vs a result for each face):  
   
 ```html
-<script>
 octree.search( position, radius, true );
-</script>
 ```
 
 Search octree using a ray:  
   
 ```html
-<script>
 octree.search( ray.origin, ray.far, true, ray.direction );
-</script>
 ```
 
 #### Intersections####
@@ -102,10 +88,8 @@ octree.search( ray.origin, ray.far, true, ray.direction );
 This octree adds two functions to the THREE.Ray class to help use the search results: ray.intersectOctreeObjects, and ray.intersectOctreeObject. In most cases you will use only the former:  
   
 ```html
-<script>
 var octreeResults = octree.search( ray.origin, ray.far, true, ray.direction )
 var intersections = ray.intersectOctreeObjects( octreeResults );
-</script>
 ```
 
 #### Example####
