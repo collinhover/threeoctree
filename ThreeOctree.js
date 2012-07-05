@@ -1980,6 +1980,10 @@ ray additional functionality
 		
 		rayProto.apply( this, arguments );
 		
+		this.near = this.near || 0;
+		this.far = this.far || Infinity;
+		var precision = 0.0001;
+		
 		//
 
 		var a = new THREE.Vector3();
