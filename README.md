@@ -92,6 +92,37 @@ var octreeResults = octree.search( ray.origin, ray.far, true, ray.direction )
 var intersections = ray.intersectOctreeObjects( octreeResults );
 ```
 
+If you wish to get an intersection from a user's mouse click, this is easy enough:
+
+```html
+function on_click ( event ) {
+	
+	// record mouse x/y position as a 3D vector
+	
+	var mousePosition = new THREE.Vector3();
+	mousePosition.x = ( event.pageX / window.innerWidth ) * 2 - 1;
+	mousePosition.y = -( event.pageY / window.innerHeight ) * 2 + 1;
+	mousePosition.z = 0.5;
+
+	// use THREE.Projector to unproject mouse position into scene via camera
+	
+	var projector = new THREE.Projector();
+	projector.unprojectVector( mousePosition, camera );
+
+	// create new ray
+	// origin is camera position
+	// direction is unprojected mouse position - camera position
+	
+	var ray = new THREE.Ray();
+	ray.origin.copy( camera.position );
+	ray.direction.copy( mousePosition.subSelf( camera.position ) );
+
+	// now search octree by ray and find intersections using method above
+	...
+	
+}
+```
+
 #### Example####
 
 The following code shows a working example (see comments for details):   
