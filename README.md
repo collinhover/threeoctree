@@ -115,7 +115,7 @@ function on_click ( event ) {
 	
 	var ray = new THREE.Ray();
 	ray.origin.copy( camera.position );
-	ray.direction.copy( mousePosition.subSelf( camera.position ) );
+	ray.direction.copy( mousePosition.subSelf( camera.position ) ).normalize();
 
 	// now search octree by ray and find intersections using method above
 	...
