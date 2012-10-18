@@ -2001,10 +2001,10 @@
 			// temporarily replace object geometry's faces with octree object faces
 			
 			facesSearch = octreeObject.faces;
+			facesAll = object.geometry.faces;
 			
 			if ( facesSearch.length > 0 ) {
 				
-				facesAll = object.geometry.faces;
 				object.geometry.faces = facesSearch;
 				
 			}
@@ -2013,9 +2013,9 @@
 			
 			intersects = this.intersectObject( object, recursive );
 			
-			// replace object geometry's faces
+			// revert object geometry's faces
 			
-			if ( facesAll !== facesSearch ) {
+			if ( facesSearch.length > 0 ) {
 				
 				object.geometry.faces = facesAll;
 				
