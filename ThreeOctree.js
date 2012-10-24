@@ -822,6 +822,7 @@
 		add_object: function ( object ) {
 			
 			var index,
+				indexOctant,
 				node;
 			
 			// get object octant index
@@ -1018,7 +1019,9 @@
 		
 		grow: function () {
 			
-			var objectsExpand = [],
+			var indexOctant,
+				object,
+				objectsExpand = [],
 				objectsExpandOctants = [],
 				objectsSplit = [],
 				objectsSplitOctants = [],
