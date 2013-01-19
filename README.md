@@ -1,10 +1,13 @@
-﻿ThreeOctree.js
+﻿ThreeOctree.js (r51)
 ========
 
-#### (sparse + dynamic) 3D spatial representation structure for fast searches####
+#### (sparse + dynamic) 3D spatial representation structure for fast searches ####
 
 The aim of this project is to create a fully featured octree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
+```html
+This build is stable up to THREE.js ~r51 (updates coming!)  
+```
   
 ### Current capabilities###
 
