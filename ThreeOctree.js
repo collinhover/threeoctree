@@ -1,14 +1,13 @@
 /*!
  *
- * ThreeOctree.js / https://github.com/collinhover/threeoctree
+ * threeoctree.js (r56) / https://github.com/collinhover/threeoctree
  * (sparse) dynamic 3D spatial representation structure for fast searches.
- * 
+ *
  * @author Collin Hover / http://collinhover.com/
- * based on Dynamic Octree by Piko3D @ http://www.piko3d.com/ and Octree by Marek Pawlowski @ pawlowski.it 
+ * based on Dynamic Octree by Piko3D @ http://www.piko3d.com/ and Octree by Marek Pawlowski @ pawlowski.it
  *
  */
- 
- ( function ( THREE ) {
+ ( function ( THREE ) { "use strict";
 	
 	/*===================================================
 
@@ -16,17 +15,17 @@
 
 	=====================================================*/
 	
-	function is_number ( n ) {
+	function isNumber ( n ) {
 		return !isNaN( n ) && isFinite( n );
-	};
+	}
 	
-	function is_array ( target ) {
+	function isArray ( target ) {
 		return Object.prototype.toString.call( target ) === '[object Array]';
-	};
+	}
 	
-	function ensure_array ( target ) {
-		return target ? ( is_array ( target ) !== true ? [ target ] : target ) : [];
-	};
+	function toArray ( target ) {
+		return target ? ( isArray ( target ) !== true ? [ target ] : target ) : [];
+	}
 
 	/*===================================================
 
@@ -49,12 +48,12 @@
 		this.INDEX_INSIDE_CROSS = -1;
 		this.INDEX_OUTSIDE_OFFSET = 2;
 		
-		this.INDEX_OUTSIDE_POS_X = is_number( parameters.INDEX_OUTSIDE_POS_X ) ? parameters.INDEX_OUTSIDE_POS_X : 0;
-		this.INDEX_OUTSIDE_NEG_X = is_number( parameters.INDEX_OUTSIDE_NEG_X ) ? parameters.INDEX_OUTSIDE_NEG_X : 1;
-		this.INDEX_OUTSIDE_POS_Y = is_number( parameters.INDEX_OUTSIDE_POS_Y ) ? parameters.INDEX_OUTSIDE_POS_Y : 2;
-		this.INDEX_OUTSIDE_NEG_Y = is_number( parameters.INDEX_OUTSIDE_NEG_Y ) ? parameters.INDEX_OUTSIDE_NEG_Y : 3;
-		this.INDEX_OUTSIDE_POS_Z = is_number( parameters.INDEX_OUTSIDE_POS_Z ) ? parameters.INDEX_OUTSIDE_POS_Z : 4;
-		this.INDEX_OUTSIDE_NEG_Z = is_number( parameters.INDEX_OUTSIDE_NEG_Z ) ? parameters.INDEX_OUTSIDE_NEG_Z : 5;
+		this.INDEX_OUTSIDE_POS_X = isNumber( parameters.INDEX_OUTSIDE_POS_X ) ? parameters.INDEX_OUTSIDE_POS_X : 0;
+		this.INDEX_OUTSIDE_NEG_X = isNumber( parameters.INDEX_OUTSIDE_NEG_X ) ? parameters.INDEX_OUTSIDE_NEG_X : 1;
+		this.INDEX_OUTSIDE_POS_Y = isNumber( parameters.INDEX_OUTSIDE_POS_Y ) ? parameters.INDEX_OUTSIDE_POS_Y : 2;
+		this.INDEX_OUTSIDE_NEG_Y = isNumber( parameters.INDEX_OUTSIDE_NEG_Y ) ? parameters.INDEX_OUTSIDE_NEG_Y : 3;
+		this.INDEX_OUTSIDE_POS_Z = isNumber( parameters.INDEX_OUTSIDE_POS_Z ) ? parameters.INDEX_OUTSIDE_POS_Z : 4;
+		this.INDEX_OUTSIDE_NEG_Z = isNumber( parameters.INDEX_OUTSIDE_NEG_Z ) ? parameters.INDEX_OUTSIDE_NEG_Z : 5;
 		
 		this.INDEX_OUTSIDE_MAP = [];
 		this.INDEX_OUTSIDE_MAP[ this.INDEX_OUTSIDE_POS_X ] = { index: this.INDEX_OUTSIDE_POS_X, count: 0, x: 1, y: 0, z: 0 };
@@ -83,17 +82,17 @@
 		this.objects = [];
 		this.objectsData = [];
 		
-		this.depthMax = is_number( parameters.depthMax ) ? parameters.depthMax : -1;
-		this.objectsThreshold = is_number( parameters.objectsThreshold ) ? parameters.objectsThreshold : 8;
-		this.overlapPct = is_number( parameters.overlapPct ) ? parameters.overlapPct : 0.15;
+		this.depthMax = isNumber( parameters.depthMax ) ? parameters.depthMax : -1;
+		this.objectsThreshold = isNumber( parameters.objectsThreshold ) ? parameters.objectsThreshold : 8;
+		this.overlapPct = isNumber( parameters.overlapPct ) ? parameters.overlapPct : 0.15;
 		
 		this.root = parameters.root instanceof THREE.OctreeNode ? parameters.root : new THREE.OctreeNode( parameters );
 		
-	}
+	};
 
 	THREE.Octree.prototype = {
 		
-		root_set: function ( root ) { 
+		setRoot: function ( root ) { 
 			
 			if ( root instanceof THREE.OctreeNode ) {
 				
@@ -103,7 +102,7 @@
 				
 				// update properties
 				
-				this.root.properties_update_cascade();
+				this.root.updateProperties();
 				
 			}
 			
@@ -137,7 +136,7 @@
 				
 				// ensure world matrices are updated
 				
-				this.update_object_world_matrix( object );
+				this.updateObject( object );
 				
 				// if adding faces of object
 				
@@ -148,7 +147,7 @@
 					
 					for ( i = 0, l = faces.length; i < l; i++ ) {
 						
-						this.add_object_data( object, faces[ i ] );
+						this.addObjectData( object, faces[ i ] );
 						
 					}
 					
@@ -156,7 +155,7 @@
 				// else add object itself
 				else {
 					
-					this.add_object_data( object );
+					this.addObjectData( object );
 					
 				}
 				
@@ -164,7 +163,7 @@
 			
 		},
 		
-		add_object_data: function ( object, face ) {
+		addObjectData: function ( object, face ) {
 			
 			var objectData = new THREE.OctreeObjectData( object, face );
 			
@@ -174,7 +173,7 @@
 			
 			// add to nodes
 			
-			this.root.add_object( objectData );
+			this.root.addObject( objectData );
 			
 		},
 		
@@ -205,7 +204,7 @@
 				
 				// remove from nodes
 				
-				objectsDataRemoved = this.root.remove_object( objectData );
+				objectsDataRemoved = this.root.removeObject( objectData );
 				
 				// remove from objects data list
 				
@@ -269,7 +268,7 @@
 				
 				// ensure world matrices are updated
 				
-				this.update_object_world_matrix( object );
+				this.updateObject( object );
 				
 			}
 			
@@ -293,7 +292,7 @@
 					
 					indexOctantLast = objectData.indexOctant;
 					
-					indexOctant = node.octant_index( objectData );
+					indexOctant = node.getOctantIndex( objectData );
 					
 					// if object octant index has changed
 					
@@ -317,11 +316,11 @@
 				
 				// remove object from current node
 				
-				objectData.node.remove_object( objectData );
+				objectData.node.removeObject( objectData );
 				
 				// add object to tree root
 				
-				this.root.add_object( objectData );
+				this.root.addObject( objectData );
 				
 			}
 			
@@ -346,7 +345,7 @@
 			
 			// ensure radius (i.e. distance of ray) is a number
 			
-			if ( is_number( radius ) !== true ) {
+			if ( isNumber( radius ) !== true ) {
 				
 				radius = Number.MAX_VALUE;
 				
@@ -357,7 +356,7 @@
 			if ( direction instanceof THREE.Vector3 ) {
 				
 				direction = this.utilVec31Search.copy( direction ).normalize();
-				directionPct = this.utilVec32Search.set( 1, 1, 1 ).divideSelf( direction );
+				directionPct = this.utilVec32Search.set( 1, 1, 1 ).divide( direction );
 				
 			}
 			
@@ -428,12 +427,12 @@
 			
 		},
 		
-		update_object_world_matrix: function ( object ) {
+		updateObject: function ( object ) {
 			
 			var i, l,
 				parentCascade = [ object ],
 				parent,
-				parentUpdate
+				parentUpdate;
 			
 			// search all parents between object and root for world matrix update
 			
@@ -468,27 +467,27 @@
 			
 		},
 		
-		depth_end: function () {
+		getDepthEnd: function () {
 			
-			return this.root.depth_end();
-			
-		},
-		
-		node_count_end: function () {
-			
-			return this.root.node_count_end();
+			return this.root.getDepthEnd();
 			
 		},
 		
-		object_count_end: function () {
+		getNodeCountEnd: function () {
 			
-			return this.root.object_count_end();
+			return this.root.getNodeCountEnd();
 			
 		},
 		
-		to_console: function () {
+		getObjectCountEnd: function () {
 			
-			this.root.to_console();
+			return this.root.getObjectCountEnd();
+			
+		},
+		
+		toConsole: function () {
+			
+			this.root.toConsole();
 			
 		}
 		
@@ -524,7 +523,7 @@
 		
 		this.positionLast = this.position.clone();
 		
-	}
+	};
 
 	THREE.OctreeObjectData.prototype = {
 		
@@ -532,14 +531,14 @@
 			
 			if ( this.usesFaces() ) {
 				
-				this.radius = this.face_bounding_radius( this.object, this.faces );
-				this.object.matrixWorld.multiplyVector3( this.position.copy( this.faces.centroid ) );
+				this.radius = this.getFaceBoundingRadius( this.object, this.faces );
+				this.position.copy( this.faces.centroid ).applyMatrix4( this.object.matrixWorld );
 				
 			}
 			else {
 				
 				this.radius = this.object.geometry instanceof THREE.Geometry ? this.object.geometry.boundingSphere.radius : this.object.boundRadius;
-				this.position.copy( this.object.matrixWorld.getPosition() );
+				this.position.getPositionFromMatrix( this.object.matrixWorld );
 				
 			}
 			
@@ -547,7 +546,7 @@
 			
 		},
 		
-		face_bounding_radius: function ( object, face ) {
+		getFaceBoundingRadius: function ( object, face ) {
 			
 			var geometry = object instanceof THREE.Mesh ? object.geometry : object,
 				vertices = geometry.vertices,
@@ -562,16 +561,16 @@
 				
 				vd = vertices[ face.d ];
 				
-				centroid.add( va, vb ).addSelf( vc ).addSelf( vd ).divideScalar( 4 );
+				centroid.addVectors( va, vb ).add( vc ).add( vd ).divideScalar( 4 );
 				
-				radius = Math.max( centroidToVert.sub( centroid, va ).length(), centroidToVert.sub( centroid, vb ).length(), centroidToVert.sub( centroid, vc ).length(), centroidToVert.sub( centroid, vd ).length() );
+				radius = Math.max( centroidToVert.subVectors( centroid, va ).length(), centroidToVert.subVectors( centroid, vb ).length(), centroidToVert.subVectors( centroid, vc ).length(), centroidToVert.subVectors( centroid, vd ).length() );
 				
 			}
 			else {
 				
-				centroid.add( va, vb ).addSelf( vc ).divideScalar( 3 );
+				centroid.addVectors( va, vb ).add( vc ).divideScalar( 3 );
 				
-				radius = Math.max( centroidToVert.sub( centroid, va ).length(), centroidToVert.sub( centroid, vb ).length(), centroidToVert.sub( centroid, vc ).length() );
+				radius = Math.max( centroidToVert.subVectors( centroid, va ).length(), centroidToVert.subVectors( centroid, vb ).length(), centroidToVert.subVectors( centroid, vc ).length() );
 				
 			}
 			
@@ -612,7 +611,7 @@
 			this.tree = parameters.tree;
 			
 		}
-		else if ( parent instanceof THREE.OctreeNode !== true ) {
+		else if ( parameters.parent instanceof THREE.OctreeNode !== true ) {
 			
 			parameters.root = this;
 			
@@ -624,14 +623,14 @@
 		
 		this.id = this.tree.nodeCount++;
 		this.position = parameters.position instanceof THREE.Vector3 ? parameters.position : new THREE.Vector3();
-		this.radius = is_number( parameters.radius ) && parameters.radius > 0 ? parameters.radius : 1;
+		this.radius = isNumber( parameters.radius ) && parameters.radius > 0 ? parameters.radius : 1;
 		this.indexOctant = parameters.indexOctant;
 		this.depth = 0;
 		
 		// reset and assign parent
 		
 		this.reset();
-		this.parent_set( parameters.parent );
+		this.setParent( parameters.parent );
 		
 		// additional properties
 		
@@ -654,11 +653,11 @@
 			
 		}
 		
-	}
+	};
 
 	THREE.OctreeNode.prototype = {
 		
-		parent_set: function ( parent ) {
+		setParent: function ( parent ) {
 			
 			// store new parent
 			
@@ -668,22 +667,22 @@
 				
 				// update properties
 				
-				this.properties_update_cascade();
+				this.updateProperties();
 				
 			}
 			
 		},
 		
-		properties_update_cascade: function () {
+		updateProperties: function () {
 			
 			var i, l;
 			
 			// properties
 			
-			if ( this._parent instanceof THREE.OctreeNode ) {
+			if ( this.parent instanceof THREE.OctreeNode ) {
 				
-				this.tree = this._parent.tree;
-				this.depth = this._parent.depth + 1;
+				this.tree = this.parent.tree;
+				this.depth = this.parent.depth + 1;
 				
 			}
 			else {
@@ -696,7 +695,7 @@
 			
 			for ( i = 0, l = this.nodesIndices.length; i < l; i++ ) {
 				
-				this.nodesByIndex[ this.nodesIndices[ i ] ].properties_update_cascade();
+				this.nodesByIndex[ this.nodesIndices[ i ] ].updateProperties();
 				
 			}
 			
@@ -719,7 +718,7 @@
 				
 				node = nodesByIndex[ nodesIndices[ i ] ];
 				
-				node.parent_set( undefined );
+				node.setParent( undefined );
 				
 				if ( cascade === true ) {
 					
@@ -739,9 +738,9 @@
 			
 		},
 		
-		add_node: function ( node, indexOctant ) {
+		addNode: function ( node, indexOctant ) {
 			
-			indexOctant = node.indexOctant = is_number( indexOctant ) ? indexOctant : is_number( node.indexOctant ) ? node.indexOctant : this.octant_index( node );
+			indexOctant = node.indexOctant = isNumber( indexOctant ) ? indexOctant : isNumber( node.indexOctant ) ? node.indexOctant : this.getOctantIndex( node );
 			
 			if ( this.nodesIndices.indexOf( indexOctant ) === -1 ) {
 				
@@ -753,13 +752,13 @@
 			
 			if ( node.parent !== this ) {
 				
-				node.parent_set( this );
+				node.setParent( this );
 				
 			}
 			
 		},
 		
-		remove_node: function ( identifier ) {
+		removeNode: function ( identifier ) {
 			
 			var indexOctant = -1,
 				index,
@@ -773,7 +772,7 @@
 				
 			}
 			// if identifier is number
-			else if ( is_number( identifier ) ) {
+			else if ( isNumber( identifier ) ) {
 				
 				indexOctant = identifier;
 				
@@ -811,7 +810,7 @@
 				
 				if ( node.parent === this ) {
 					
-					node.parent_set( undefined );
+					node.setParent( undefined );
 					
 				}
 				
@@ -819,7 +818,7 @@
 			
 		},
 		
-		add_object: function ( object ) {
+		addObject: function ( object ) {
 			
 			var index,
 				indexOctant,
@@ -827,20 +826,20 @@
 			
 			// get object octant index
 			
-			indexOctant = this.octant_index( object );
+			indexOctant = this.getOctantIndex( object );
 			
 			// if object fully contained by an octant, add to subtree
 			if ( indexOctant > -1 && this.nodesIndices.length > 0 ) {
 				
 				node = this.branch( indexOctant );
 				
-				node.add_object( object );
+				node.addObject( object );
 				
 			}
 			// if object lies outside bounds, add to parent node
 			else if ( indexOctant < -1 && this.parent instanceof THREE.OctreeNode ) {
 				
-				this.parent.add_object( object );
+				this.parent.addObject( object );
 				
 			}
 			// else add to self
@@ -862,13 +861,13 @@
 				
 				// check if need to expand, split, or both
 				
-				this.grow_check();
+				this.checkGrow();
 				
 			}
 			
 		},
 		
-		add_objects_no_check: function ( objects ) {
+		addObjectWithoutCheck: function ( objects ) {
 			
 			var i, l,
 				object;
@@ -885,7 +884,7 @@
 			
 		},
 		
-		remove_object: function ( object ) {
+		removeObject: function ( object ) {
 			
 			var i, l,
 				nodesRemovedFrom,
@@ -893,7 +892,7 @@
 			
 			// cascade through tree to find and remove object
 			
-			removeData = this.remove_object_end( object, { searchComplete: false, nodesRemovedFrom: [], objectsDataRemoved: [] } );
+			removeData = this.removeObjectRecursive( object, { searchComplete: false, nodesRemovedFrom: [], objectsDataRemoved: [] } );
 			
 			// if object removed, try to shrink the nodes it was removed from
 			
@@ -913,7 +912,7 @@
 			
 		},
 		
-		remove_object_end: function ( object, removeData ) {
+		removeObjectRecursive: function ( object, removeData ) {
 			
 			var i, l,
 				index = -1,
@@ -989,7 +988,7 @@
 					
 					// try removing object from node
 					
-					removeData = node.remove_object_end( object, removeData );
+					removeData = node.removeObjectRecursive( object, removeData );
 					
 					if ( removeData.searchComplete === true ) {
 						
@@ -1005,7 +1004,7 @@
 			
 		},
 		
-		grow_check: function () {
+		checkGrow: function () {
 			
 			// if object count above max
 			
@@ -1025,7 +1024,8 @@
 				objectsExpandOctants = [],
 				objectsSplit = [],
 				objectsSplitOctants = [],
-				objectsRemaining = [];
+				objectsRemaining = [],
+				i, l;
 			
 			// for each object
 			
@@ -1035,7 +1035,7 @@
 				
 				// get object octant index
 				
-				indexOctant = this.octant_index( object );
+				indexOctant = this.getOctantIndex( object );
 				
 				// if lies within octant
 				if ( indexOctant > -1 ) {
@@ -1082,7 +1082,7 @@
 			
 			// merge check
 			
-			this.merge_check();
+			this.checkMerge();
 			
 		},
 		
@@ -1112,7 +1112,7 @@
 					
 					// get object octant index
 					
-					indexOctant = is_number( octants[ i ] ) ? octants[ i ] : this.octant_index( object );
+					indexOctant = isNumber( octants[ i ] ) ? octants[ i ] : this.getOctantIndex( object );
 					
 					// if object contained by octant, branch this tree
 					
@@ -1120,7 +1120,7 @@
 						
 						node = this.branch( indexOctant );
 						
-						node.add_object( object );
+						node.addObject( object );
 						
 					}
 					// else add to remaining
@@ -1176,7 +1176,7 @@
 				overlap = radius * this.tree.overlapPct;
 				radiusOffset = radius - overlap;
 				offset = this.utilVec31Branch.set( indexOctant & 1 ? radiusOffset : -radiusOffset, indexOctant & 2 ? radiusOffset : -radiusOffset, indexOctant & 4 ? radiusOffset : -radiusOffset );
-				position = new THREE.Vector3().add( this.position, offset );
+				position = new THREE.Vector3().addVectors( this.position, offset );
 				
 				// node
 				
@@ -1190,7 +1190,7 @@
 				
 				// store
 				
-				this.add_node( node, indexOctant );
+				this.addNode( node, indexOctant );
 			
 			}
 			
@@ -1232,7 +1232,7 @@
 			
 			// handle max depth down tree
 			
-			if ( this.tree.depthMax < 0 || this.tree.root.depth_end() < this.tree.depthMax ) {
+			if ( this.tree.depthMax < 0 || this.tree.root.getDepthEnd() < this.tree.depthMax ) {
 				
 				objects = objects || this.objects;
 				octants = octants || [];
@@ -1256,7 +1256,7 @@
 					
 					// get object octant index
 					
-					indexOctant = is_number( octants[ i ] ) ? octants[ i ] : this.octant_index( object );
+					indexOctant = isNumber( octants[ i ] ) ? octants[ i ] : this.getOctantIndex( object );
 					
 					// if object outside this, include in calculations
 					
@@ -1370,8 +1370,8 @@
 					
 					// get this octant indices based on octant normal
 					
-					indexOctant = this.octant_index_from_xyz( octantX, octantY, octantZ );
-					indexOctantInverse = this.octant_index_from_xyz( -octantX, -octantY, -octantZ );
+					indexOctant = this.getOctantIndexFromPosition( octantX, octantY, octantZ );
+					indexOctantInverse = this.getOctantIndexFromPosition( -octantX, -octantY, -octantZ );
 					
 					// properties
 					
@@ -1387,7 +1387,7 @@
 					
 					radiusOffset = ( radiusParent + overlapParent ) - ( radius + overlap );
 					offset.set( indexOctant & 1 ? radiusOffset : -radiusOffset, indexOctant & 2 ? radiusOffset : -radiusOffset, indexOctant & 4 ? radiusOffset : -radiusOffset );
-					position = new THREE.Vector3().add( this.position, offset );
+					position = new THREE.Vector3().addVectors( this.position, offset );
 					
 					// parent
 					
@@ -1399,17 +1399,17 @@
 					
 					// set self as node of parent
 					
-					parent.add_node( this, indexOctantInverse );
+					parent.addNode( this, indexOctantInverse );
 					
 					// set parent as root
 					
-					this.tree.root_set( parent );
+					this.tree.setRoot( parent );
 					
 					// add all expand objects to parent
 					
 					for ( i = 0, l = objectsExpand.length; i < l; i++ ) {
 						
-						this.tree.root.add_object( objectsExpand[ i ] );
+						this.tree.root.addObject( objectsExpand[ i ] );
 						
 					}
 					
@@ -1438,22 +1438,22 @@
 			
 			// merge check
 			
-			this.merge_check();
+			this.checkMerge();
 			
 			// contract check
 			
-			this.tree.root.contract_check();
+			this.tree.root.checkContract();
 			
 		},
 		
-		merge_check: function () {
+		checkMerge: function () {
 			
 			var nodeParent = this,
 				nodeMerge;
 			
 			// traverse up tree as long as node + entire subtree's object count is under minimum
 			
-			while ( nodeParent.parent instanceof THREE.OctreeNode && nodeParent.object_count_end() < this.tree.objectsThreshold ) {
+			while ( nodeParent.parent instanceof THREE.OctreeNode && nodeParent.getObjectCountEnd() < this.tree.objectsThreshold ) {
 				
 				nodeMerge = nodeParent;
 				nodeParent = nodeParent.parent;
@@ -1478,7 +1478,7 @@
 			
 			// handle nodes
 			
-			nodes = ensure_array( nodes );
+			nodes = toArray( nodes );
 			
 			for ( i = 0, l = nodes.length; i < l; i++ ) {
 				
@@ -1486,7 +1486,7 @@
 				
 				// gather node + all subtree objects
 				
-				this.add_objects_no_check( node.objects_end() );
+				this.addObjectWithoutCheck( node.getObjectsEnd() );
 				
 				// reset node + entire subtree
 				
@@ -1494,17 +1494,17 @@
 				
 				// remove node
 				
-				this.remove_node( node.indexOctant, node );
+				this.removeNode( node.indexOctant, node );
 				
 			}
 			
 			// merge check
 			
-			this.merge_check();
+			this.checkMerge();
 			
 		},
 		
-		contract_check: function () {
+		checkContract: function () {
 			
 			var i, l,
 				node,
@@ -1524,7 +1524,7 @@
 					
 					node = this.nodesByIndex[ this.nodesIndices[ i ] ];
 					
-					nodeObjectsCount = node.object_count_end();
+					nodeObjectsCount = node.getObjectCountEnd();
 					outsideHeaviestObjectsCount += nodeObjectsCount;
 					
 					if ( nodeHeaviest instanceof THREE.OctreeNode === false || nodeObjectsCount > nodeHeaviestObjectsCount ) {
@@ -1569,7 +1569,7 @@
 					
 					// add node + all subtree objects to root
 					
-					nodeRoot.add_objects_no_check( node.objects_end() );
+					nodeRoot.addObjectWithoutCheck( node.getObjectsEnd() );
 					
 					// reset node + entire subtree
 					
@@ -1581,7 +1581,7 @@
 			
 			// add own objects to root
 			
-			nodeRoot.add_objects_no_check( this.objects );
+			nodeRoot.addObjectWithoutCheck( this.objects );
 			
 			// reset self
 			
@@ -1589,15 +1589,15 @@
 			
 			// set new root
 			
-			this.tree.root_set( nodeRoot );
+			this.tree.setRoot( nodeRoot );
 			
 			// contract check on new root
 			
-			nodeRoot.contract_check();
+			nodeRoot.checkContract();
 			
 		},
 		
-		octant_index: function ( objectData ) {
+		getOctantIndex: function ( objectData ) {
 			
 			var i, l,
 				positionObj,
@@ -1727,7 +1727,7 @@
 			
 		},
 		
-		octant_index_from_xyz: function ( x, y, z ) {
+		getOctantIndexFromPosition: function ( x, y, z ) {
 			
 			var indexOctant = 0;
 			
@@ -1763,12 +1763,12 @@
 			
 			if ( direction ) {
 				
-				intersects = this.intersect_ray( position, direction, radius, directionPct );
+				intersects = this.intersectRay( position, direction, radius, directionPct );
 				
 			}
 			else {
 				
-				intersects = this.intersect_sphere( position, radius );
+				intersects = this.intersectSphere( position, radius );
 				
 			}
 			
@@ -1796,7 +1796,7 @@
 			
 		},
 		
-		intersect_sphere: function ( position, radius ) {
+		intersectSphere: function ( position, radius ) {
 			
 			var	distance = radius * radius,
 				px = position.x,
@@ -1828,11 +1828,11 @@
 			
 		},
 		
-		intersect_ray: function ( origin, direction, distance, directionPct ) {
+		intersectRay: function ( origin, direction, distance, directionPct ) {
 			
 			if ( typeof directionPct === 'undefined' ) {
 				
-				directionPct = this.utilVec31Ray.set( 1, 1, 1 ).divideSelf( direction );
+				directionPct = this.utilVec31Ray.set( 1, 1, 1 ).divide( direction );
 				
 			}
 			
@@ -1862,7 +1862,7 @@
 			
 		},
 		
-		depth_end: function ( depth ) {
+		getDepthEnd: function ( depth ) {
 			
 			var i, l,
 				node;
@@ -1873,7 +1873,7 @@
 
 					node = this.nodesByIndex[ this.nodesIndices[ i ] ];
 
-					depth = node.depth_end( depth );
+					depth = node.getDepthEnd( depth );
 
 				}
 				
@@ -1888,20 +1888,20 @@
 			
 		},
 		
-		node_count_end: function () {
+		getNodeCountEnd: function () {
 			
-			return this.tree.root.node_count_cascade() + 1;
+			return this.tree.root.getNodeCountRecursive() + 1;
 			
 		},
 		
-		node_count_cascade: function () {
+		getNodeCountRecursive: function () {
 			
 			var i, l,
 				count = this.nodesIndices.length;
 			
 			for ( i = 0, l = this.nodesIndices.length; i < l; i++ ) {
 				
-				count += this.nodesByIndex[ this.nodesIndices[ i ] ].node_count_cascade();
+				count += this.nodesByIndex[ this.nodesIndices[ i ] ].getNodeCountRecursive();
 				
 			}
 			
@@ -1909,7 +1909,7 @@
 			
 		},
 		
-		objects_end: function ( objects ) {
+		getObjectsEnd: function ( objects ) {
 			
 			var i, l,
 				node;
@@ -1920,7 +1920,7 @@
 				
 				node = this.nodesByIndex[ this.nodesIndices[ i ] ];
 				
-				objects = node.objects_end( objects );
+				objects = node.getObjectsEnd( objects );
 				
 			}
 			
@@ -1928,14 +1928,14 @@
 			
 		},
 		
-		object_count_end: function () {
+		getObjectCountEnd: function () {
 			
 			var i, l,
 				count = this.objects.length;
 			
 			for ( i = 0, l = this.nodesIndices.length; i < l; i++ ) {
 				
-				count += this.nodesByIndex[ this.nodesIndices[ i ] ].object_count_end();
+				count += this.nodesByIndex[ this.nodesIndices[ i ] ].getObjectCountEnd();
 				
 			}
 			
@@ -1943,7 +1943,7 @@
 			
 		},
 		
-		object_count_start: function () {
+		getObjectCountStart: function () {
 			
 			var count = this.objects.length,
 				parent = this.parent;
@@ -1959,7 +1959,7 @@
 			
 		},
 		
-		to_console: function ( space ) {
+		toConsole: function ( space ) {
 			
 			var i, l,
 				node,
@@ -1975,7 +1975,7 @@
 				
 				node = this.nodesByIndex[ this.nodesIndices[ i ] ];
 				
-				node.to_console( space + spaceAddition );
+				node.toConsole( space + spaceAddition );
 				
 			}
 			
@@ -1985,11 +1985,11 @@
 
 	/*===================================================
 
-	ray additional functionality
+	raycaster additional functionality
 
 	=====================================================*/
 	
-	THREE.Ray.prototype.intersectOctreeObject = function ( object, recursive ) {
+	THREE.Raycaster.prototype.intersectOctreeObject = function ( object, recursive ) {
 		
 		var intersects,
 			octreeObject,
@@ -2027,7 +2027,7 @@
 		}
 		else {
 			
-			intersects = this.intersectObject( object, recursive);
+			intersects = this.intersectObject( object, recursive );
 			
 		}
 		
@@ -2035,7 +2035,7 @@
 		
 	};
 	
-	THREE.Ray.prototype.intersectOctreeObjects = function ( objects, recursive ) {
+	THREE.Raycaster.prototype.intersectOctreeObjects = function ( objects, recursive ) {
 		
 		var i, il,
 			intersects = [];

@@ -1,15 +1,16 @@
-﻿ThreeOctree.js (r51)
+﻿threeoctree.js (r56)
 ========
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
 
-The aim of this project is to create a fully featured octree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
+The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
 ```html
-This build is stable up to THREE.js ~r51 (updates coming!)  
+This build is stable up to THREE.js ~r56  
+(see migration notes below, updates to latest THREE build coming!)  
 ```
   
-### Current capabilities###
+## Features
 
 * handle complete objects ( i.e. 1 center position for entire geometry )
 * handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
@@ -22,19 +23,25 @@ This build is stable up to THREE.js ~r51 (updates coming!)
 * update ( account for moving objects, trade-off is performance and is not recommended )
 * search by position and radius ( i.e. sphere search )
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
-* raycast search results using built in THREE.Ray additions ( does not modify the Ray except to add new functions )
+* raycast search results using built in THREE.Raycaster additions ( does not modify the Raycaster except to add new functions )
   
+## Migration  
+#### r51 → r56  
+- Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
+- Script renamed from `ThreeOctree.js` to `threeoctree.js`  
+- `Ray.intersectOctreeObjects/intersectOctreeObject` to `Raycaster.intersectOctreeObjects/intersectOctreeObject`  
+- `Vector3/Matrix4` functions from THREE r51 to r56 ( see: https://github.com/mrdoob/three.js/wiki/Migration )  
   
-### Usage###
+## Usage
 
-Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/ThreeOctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
+Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/threeoctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
 
 ```html
-<script src="js/Three.js"></script>
-<script src="js/ThreeOctree.min.js"></script>
+<script src="js/three.min.js"></script>
+<script src="js/threeoctree.min.js"></script>
 ```
 
-#### Initialize####
+#### Initialize
 
 ```html
 var octree = new THREE.Octree({
@@ -46,7 +53,7 @@ var octree = new THREE.Octree({
 } );
 ```
 
-#### Add/Remove Objects####
+#### Add/Remove Objects
 
 Add three object as single octree object:  
   
@@ -66,7 +73,7 @@ Remove all octree objects associated with three object:
 octree.remove( object );
 ```
 
-#### Search####
+#### Search
 
 Search octree at a position in all directions for radius distance:  
   
@@ -86,19 +93,19 @@ Search octree using a ray:
 octree.search( ray.origin, ray.far, true, ray.direction );
 ```
 
-#### Intersections####
+#### Intersections
 
-This octree adds two functions to the THREE.Ray class to help use the search results: ray.intersectOctreeObjects, and ray.intersectOctreeObject. In most cases you will use only the former:  
+This octree adds two functions to the THREE.Raycaster class to help use the search results: .intersectOctreeObjects(), and .intersectOctreeObject(). In most cases you will use only the former:  
   
 ```html
-var octreeResults = octree.search( ray.origin, ray.far, true, ray.direction )
-var intersections = ray.intersectOctreeObjects( octreeResults );
+var octreeResults = octree.search( rayCaster.ray.origin, rayCaster.ray.far, true, rayCaster.ray.direction )
+var intersections = rayCaster.intersectOctreeObjects( octreeResults );
 ```
 
 If you wish to get an intersection from a user's mouse click, this is easy enough:
 
 ```html
-function on_click ( event ) {
+function onClick ( event ) {
 	
 	// record mouse x/y position as a 3D vector
 	
@@ -112,21 +119,21 @@ function on_click ( event ) {
 	var projector = new THREE.Projector();
 	projector.unprojectVector( mousePosition, camera );
 
-	// create new ray
+	// create new ray caster
 	// origin is camera position
 	// direction is unprojected mouse position - camera position
 	
-	var ray = new THREE.Ray();
-	ray.origin.copy( camera.position );
-	ray.direction.copy( mousePosition.subSelf( camera.position ) ).normalize();
+	var origin = new THREE.Vector3().copy( camera.position );
+	var direction = new THREE.Vector3().copy( mousePosition.sub( camera.position ) ).normalize();
+	var rayCaster = new THREE.Raycaster( origin, direction );
 
-	// now search octree by ray and find intersections using method above
+	// now search octree and find intersections using method above
 	...
 	
 }
 ```
 
-#### Example####
+## Example
 
 The following code shows a working example (see comments for details):   
   
@@ -161,8 +168,8 @@ The following code shows a working example (see comments for details):
 
 		scene = new THREE.Scene();
 
-		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-		camera.position.z = 1000;
+		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, radius * 100 );
+		camera.position.z = radius * 20;
 		scene.add( camera );
 
 		renderer = new THREE.WebGLRenderer();
@@ -190,11 +197,11 @@ The following code shows a working example (see comments for details):
 		
 		// modify octree structure by adding/removing objects
 		
-		modify_octree();
+		modifyOctree();
 		
 		// search octree at random location
 		
-		search_octree();
+		searchOctree();
 		
 		// render results
 		
@@ -202,7 +209,7 @@ The following code shows a working example (see comments for details):
 
 	}
 	
-	function modify_octree() {
+	function modifyOctree() {
 		
 		// if is adding objects to octree
 		
@@ -280,7 +287,7 @@ The following code shows a working example (see comments for details):
 		
 	}
 	
-	function search_octree() {
+	function searchOctree() {
 		
 		var i, il;
 		
@@ -293,7 +300,6 @@ The following code shows a working example (see comments for details):
 		}
 		
 		// new search position
-		
 		searchMesh.position.set( Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf );
 		
 		// record start time
@@ -304,7 +310,9 @@ The following code shows a working example (see comments for details):
 		// optional third parameter: boolean, if should sort results by object when using faces in octree
 		// optional fourth parameter: vector3, direction of search when using ray (assumes radius is distance/far of ray)
 		
-		meshesSearch = octree.search( searchMesh.position, radiusSearch );
+		var rayCaster = new THREE.Raycaster( new THREE.Vector3().copy( searchMesh.position ), new THREE.Vector3( Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1 ).normalize() );
+		meshesSearch = octree.search( rayCaster.ray.origin, radiusSearch, true, rayCaster.ray.direction );
+		var intersections = rayCaster.intersectOctreeObjects( meshesSearch );
 		
 		// record end time
 		
@@ -323,7 +331,7 @@ The following code shows a working example (see comments for details):
 		// results to console
 		
 		console.log( 'OCTREE: ', octree );
-		console.log( '... search found ', meshesSearch.length, ' and took ', ( timeEnd - timeStart ), ' ms ' );
+		console.log( '... searched ', meshes.length, ' and found ', meshesSearch.length, ' with intersections ', intersections.length, ' and took ', ( timeEnd - timeStart ), ' ms ' );
 		
 		*/
 		
