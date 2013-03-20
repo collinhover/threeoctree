@@ -1,4 +1,4 @@
-﻿threeoctree.js (r56)
+﻿threeoctree.js (r57)
 ========
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
@@ -6,7 +6,7 @@
 The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
 ```html
-This build is stable up to THREE.js ~r56  
+This build is stable up to THREE.js ~r57 
 (see migration notes below, updates to latest THREE build coming!)  
 ```
   
@@ -24,7 +24,11 @@ This build is stable up to THREE.js ~r56
 * search by position and radius ( i.e. sphere search )
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
 * raycast search results using built in THREE.Raycaster additions ( does not modify the Raycaster except to add new functions )
-  
+    
+## Needs
+
+* reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
+
 ## Migration  
 #### r51 → r56  
 - Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
