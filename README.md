@@ -1,4 +1,4 @@
-﻿threeoctree.js (r57)
+﻿threeoctree.js (r57) [Example](http://collinhover.github.com/threeoctree)
 ========
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
@@ -30,6 +30,12 @@ This build is stable up to THREE.js ~r57
 * reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
 
 ## Migration  
+#### r56 → r59
+- Octree can now handle vertices (and particle systems)
+- `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`
+- `OctreeObjectData.usesFaces` removed, use `.faces`, `.face3`, or `.face4`
+- `OctreeObjectData.getFaceBoundingRadius` split into `.getFace3BoundingRadius` and `getFace4BoundingRadius`
+- `OctreeObjectData.vertices` added
 #### r51 → r56  
 - Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
 - Script renamed from `ThreeOctree.js` to `threeoctree.js`  
@@ -68,8 +74,15 @@ octree.add( object );
 Add three object's faces as octree objects:  
   
 ```html
-octree.add( object, true );
+octree.add( object, { useFaces: true } );
 ```
+  
+Add three object's vertices as octree objects:  
+  
+```html
+octree.add( object, { useVertices: true } );
+```
+( note that only vertices OR faces can be used, and useVertices overrides useFaces )  
 
 Remove all octree objects associated with three object:  
   
@@ -85,7 +98,7 @@ Search octree at a position in all directions for radius distance:
 octree.search( position, radius );
 ```
 
-Search octree and organize results by object (i.e. all faces belonging to three object in one list vs a result for each face):  
+Search octree and organize results by object (i.e. all faces/vertices belonging to three object in one list vs a result for each face/vertex):  
   
 ```html
 octree.search( position, radius, true );
@@ -135,219 +148,6 @@ function onClick ( event ) {
 	...
 	
 }
-```
-
-## Example
-
-The following code shows a working example (see comments for details):   
-  
-```html
-<script>
-
-	var camera, 
-		scene, 
-		renderer,
-		octree,
-		geometry, 
-		material, 
-		mesh,
-		meshes = [],
-		meshesSearch = [],
-		meshCountMax = 1000,
-		radius = 500,
-		radiusMax = radius * 10,
-		radiusMaxHalf = radiusMax * 0.5,
-		radiusSearch = 400,
-		searchMesh,
-		baseR = 255, baseG = 0, baseB = 255,
-		foundR = 0, foundG = 255, foundB = 0,
-		adding = true;
-
-	init();
-	animate();
-
-	function init() {
-		
-		// standard three scene, camera, renderer
-
-		scene = new THREE.Scene();
-
-		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, radius * 100 );
-		camera.position.z = radius * 20;
-		scene.add( camera );
-
-		renderer = new THREE.WebGLRenderer();
-		renderer.setSize( window.innerWidth, window.innerHeight );
-
-		document.body.appendChild( renderer.domElement );
-		
-		// create octree
-		
-		octree = new THREE.Octree( {
-			scene: scene
-		} );
-		
-		// create object to show search radius and add to scene
-		
-		searchMesh = new THREE.Mesh( new THREE.SphereGeometry( radiusSearch ), new THREE.MeshBasicMaterial( { color: 0x00FF00, transparent: true, opacity: 0.4 } ) );
-		scene.add( searchMesh );
-
-	}
-
-	function animate() {
-
-		// note: three.js includes requestAnimationFrame shim
-		requestAnimationFrame( animate );
-		
-		// modify octree structure by adding/removing objects
-		
-		modifyOctree();
-		
-		// search octree at random location
-		
-		searchOctree();
-		
-		// render results
-		
-		render();
-
-	}
-	
-	function modifyOctree() {
-		
-		// if is adding objects to octree
-		
-		if ( adding === true ) {
-			
-			// create new object
-			
-			geometry = new THREE.CubeGeometry( 50, 50, 50 );
-			material = new THREE.MeshBasicMaterial();
-			material.color.setRGB( baseR, baseG, baseB );
-			
-			mesh = new THREE.Mesh( geometry, material );
-			
-			// give new object a random position in radius
-			
-			mesh.position.set( Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf );
-			
-			// add new object to octree and scene
-			
-			octree.add( mesh );
-			scene.add( mesh );
-			
-			// store object for later
-			
-			meshes.push( mesh );
-			
-			// if at max, stop adding
-			
-			if ( meshes.length === meshCountMax ) {
-				
-				adding = false;
-				
-			}
-			
-		}
-		// else remove objects from octree
-		else {
-			
-			// get object
-			
-			mesh = meshes.shift();
-			
-			// remove from scene and octree
-			
-			scene.remove( mesh );
-			octree.remove( mesh );
-			
-			// if no more objects, start adding
-			
-			if ( meshes.length === 0 ) {
-				
-				adding = true;
-				
-			}
-			
-		}
-		
-		/*
-		
-		// octree details to console
-		
-		console.log( ' ============================================================================================================');
-		console.log( ' OCTREE: ', octree );
-		console.log( ' ... depth ', octree.depth, ' vs depth end?', octree.depth_end() );
-		console.log( ' ... num nodes: ', octree.node_count_end() );
-		console.log( ' ... total objects: ', octree.object_count_end(), ' vs tree objects length: ', octree.objects.length );
-		console.log( ' ============================================================================================================');
-		console.log( ' ');
-		
-		// print full octree structure to console
-		
-		octree.to_console();
-		
-		*/
-		
-	}
-	
-	function searchOctree() {
-		
-		var i, il;
-		
-		// revert previous search objects to base color
-		
-		for ( i = 0, il = meshesSearch.length; i < il; i++ ) {
-			
-			meshesSearch[ i ].object.material.color.setRGB( baseR, baseG, baseB );
-			
-		}
-		
-		// new search position
-		searchMesh.position.set( Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf );
-		
-		// record start time
-		
-		var timeStart = new Date().getTime();
-		
-		// search octree from search mesh position with search radius
-		// optional third parameter: boolean, if should sort results by object when using faces in octree
-		// optional fourth parameter: vector3, direction of search when using ray (assumes radius is distance/far of ray)
-		
-		var rayCaster = new THREE.Raycaster( new THREE.Vector3().copy( searchMesh.position ), new THREE.Vector3( Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1 ).normalize() );
-		meshesSearch = octree.search( rayCaster.ray.origin, radiusSearch, true, rayCaster.ray.direction );
-		var intersections = rayCaster.intersectOctreeObjects( meshesSearch );
-		
-		// record end time
-		
-		var timeEnd = new Date().getTime();
-		
-		// set color of all meshes found in search
-		
-		for ( i = 0, il = meshesSearch.length; i < il; i++ ) {
-			
-			meshesSearch[ i ].object.material.color.setRGB( foundR, foundG, foundB );
-			
-		}
-		
-		/*
-		
-		// results to console
-		
-		console.log( 'OCTREE: ', octree );
-		console.log( '... searched ', meshes.length, ' and found ', meshesSearch.length, ' with intersections ', intersections.length, ' and took ', ( timeEnd - timeStart ), ' ms ' );
-		
-		*/
-		
-	}
-	
-	function render() {
-		
-		renderer.render( scene, camera );
-
-	}
-
-</script>
 ```
 
 ---

@@ -5,6 +5,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="description" content="">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+	</style>
 	
     <title>THREE: Octree!</title>
 
@@ -12,28 +21,37 @@
 
 <body>
 
-    <script type="text/javascript" src="http://mrdoob.github.com/three.js/build/three.min.js"></script>
+    <script type="text/javascript" src="three.min.js"></script>
     <script type="text/javascript" src="threeoctree.js"></script>
+	<script type="text/javascript" src="stats.min.js"></script>
 	<script>
 
-		var camera, 
-			scene, 
-			renderer,
-			octree,
-			geometry, 
-			material, 
-			mesh,
-			meshes = [],
-			meshesSearch = [],
-			meshCountMax = 1000,
+		var stats;
+		
+		var camera, scene, renderer;
+		
+		var geometry, material, mesh;
+		
+		var octree;
+		
+		var meshes = [];
+		var meshesSearch = [];
+		var searchMesh;
+		
+		var meshCountMax = 1000,
 			radius = 500,
 			radiusMax = radius * 10,
 			radiusMaxHalf = radiusMax * 0.5,
-			radiusSearch = 400,
-			searchMesh,
-			baseR = 255, baseG = 0, baseB = 255,
-			foundR = 0, foundG = 255, foundB = 0,
-			adding = true;
+			radiusSearch = 400;
+		
+		var baseR = 255, baseG = 0, baseB = 255;
+		var foundR = 0, foundG = 255, foundB = 0;
+		
+		var clock = new THREE.Clock();
+		var searchDelay = 1;
+		var searchInterval = 0;
+		
+		var adding = true;
 
 		init();
 		animate();
@@ -63,12 +81,22 @@
 			
 			searchMesh = new THREE.Mesh( new THREE.SphereGeometry( radiusSearch ), new THREE.MeshBasicMaterial( { color: 0x00FF00, transparent: true, opacity: 0.4 } ) );
 			scene.add( searchMesh );
+			
+			// stats
+			
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			stats.domElement.style.zIndex = 100;
+			
+			document.body.appendChild( stats.domElement );
 
 		}
 
 		function animate() {
 
 			// note: three.js includes requestAnimationFrame shim
+			
 			requestAnimationFrame( animate );
 			
 			// modify octree structure by adding/removing objects
@@ -77,11 +105,19 @@
 			
 			// search octree at random location
 			
-			searchOctree();
+			if ( searchInterval >= searchDelay ) {
+				
+				searchInterval = 0;
+				
+				searchOctree();
+				
+			}
 			
-			// render results
+			searchInterval += clock.getDelta();
 			
 			render();
+			
+			stats.update();
 
 		}
 		
@@ -183,7 +219,7 @@
 			var timeStart = new Date().getTime();
 			
 			// search octree from search mesh position with search radius
-			// optional third parameter: boolean, if should sort results by object when using faces in octree
+			// optional third parameter: boolean, if should sort results by object when using faces/vertices in octree
 			// optional fourth parameter: vector3, direction of search when using ray (assumes radius is distance/far of ray)
 			
 			var rayCaster = new THREE.Raycaster( new THREE.Vector3().copy( searchMesh.position ), new THREE.Vector3( Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1 ).normalize() );
