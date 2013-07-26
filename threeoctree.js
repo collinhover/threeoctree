@@ -1,6 +1,6 @@
 /**!
  *
- * threeoctree.js (r56) / https://github.com/collinhover/threeoctree
+ * threeoctree.js (r59) / https://github.com/collinhover/threeoctree
  * (sparse) dynamic 3D spatial representation structure for fast searches.
  *
  * @author Collin Hover / http://collinhover.com/
