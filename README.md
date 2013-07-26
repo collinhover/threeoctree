@@ -1,4 +1,4 @@
-﻿threeoctree.js (r57) [Example](http://collinhover.github.com/threeoctree)
+﻿threeoctree.js (r59)
 ========
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
@@ -6,11 +6,11 @@
 The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
 ```html
-This build is stable up to THREE.js ~r57 
+This build is stable up to THREE.js ~r59 
 (see migration notes below, updates to latest THREE build coming!)  
 ```
   
-## Features
+## Features (+ [Example](http://collinhover.github.com/threeoctree))
 
 * handle complete objects ( i.e. 1 center position for entire geometry )
 * handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
@@ -30,12 +30,12 @@ This build is stable up to THREE.js ~r57
 * reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
 
 ## Migration  
-#### r56 → r59
-- Octree can now handle vertices (and particle systems)
-- `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`
-- `OctreeObjectData.usesFaces` removed, use `.faces`, `.face3`, or `.face4`
-- `OctreeObjectData.getFaceBoundingRadius` split into `.getFace3BoundingRadius` and `getFace4BoundingRadius`
-- `OctreeObjectData.vertices` added
+#### r56 → r59  
+- Octree can now handle vertices (and particle systems)  
+- `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`  
+- `OctreeObjectData.usesFaces` removed, use `.faces`, `.face3`, or `.face4`  
+- `OctreeObjectData.getFaceBoundingRadius` split into `.getFace3BoundingRadius` and `getFace4BoundingRadius` 
+- `OctreeObjectData.vertices` added  
 #### r51 → r56  
 - Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
 - Script renamed from `ThreeOctree.js` to `threeoctree.js`  

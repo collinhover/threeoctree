@@ -42,6 +42,22 @@
 		return -1;
 		
 	}
+	
+	function indexOfPropertyWithValue( array, property, value ) {
+		
+		for ( var i = 0, il = array.length; i < il; i++ ) {
+			
+			if ( array[ i ][ property ] === value ) {
+				
+				return i;
+				
+			}
+			
+		}
+		
+		return -1;
+		
+	}
 
 	/*===================================================
 
@@ -89,14 +105,33 @@
 		this.utilVec31Search = new THREE.Vector3();
 		this.utilVec32Search = new THREE.Vector3();
 		
+		// hook into renderer as a post plugin
+		
+		this.renderer = parameters.renderer;
+		
+		if ( this.renderer instanceof THREE.WebGLRenderer || this.renderer instanceof THREE.CanvasRenderer ) {
+			
+			this.renderer.addPostPlugin( this );
+			
+		}
+		
 		// pass scene to see octree structure
 		
 		this.scene = parameters.scene;
 		
+		if ( this.scene ) {
+			
+			this.visualGeometry = new THREE.CubeGeometry( 1, 1, 1 );
+			this.visualMaterial = new THREE.MeshBasicMaterial( { color: 0xFF0066, wireframe: true, wireframeLinewidth: 1 } );
+			
+		}
+		
 		// properties
 		
 		this.objects = [];
+		this.objectsMap = {};
 		this.objectsData = [];
+		this.objectsDeferred = [];
 		
 		this.depthMax = isNumber( parameters.depthMax ) ? parameters.depthMax : -1;
 		this.objectsThreshold = isNumber( parameters.objectsThreshold ) ? parameters.objectsThreshold : 8;
@@ -124,10 +159,37 @@
 			
 		},
 		
+		init: function () {},
+		
+		render: function () {
+			
+			// add any deferred objects that were waiting for render cycle
+			
+			if ( this.objectsDeferred.length > 0 ) {
+				
+				for ( var i = 0, il = this.objectsDeferred.length; i < il; i++ ) {
+					
+					var deferred = this.objectsDeferred[ i ];
+					
+					this.addDeferred( deferred.object, deferred.options );
+					
+				}
+				
+				this.objectsDeferred.length = 0;
+				
+			}
+			
+		},
+		
 		add: function ( object, options ) {
 			
+			this.objectsDeferred.push( { object: object, options: options } );
+			
+		},
+		
+		addDeferred: function ( object, options ) {
+			
 			var i, l,
-				index,
 				geometry,
 				faces,
 				useFaces,
@@ -143,19 +205,20 @@
 				
 			}
 			
-			// if does not yet contain object
+			// check uuid to avoid duplicates
 			
-			index = indexOfValue( this.objects, object );
+			if ( !object.uuid ) {
+				
+				object.uuid = THREE.Math.generateUUID();
+				
+			}
 			
-			if ( index === -1 ) {
+			if ( !this.objectsMap[ object.uuid ] ) {
 				
 				// store
 				
 				this.objects.push( object );
-				
-				// ensure world matrices are updated
-				
-				this.updateObject( object );
+				this.objectsMap[ object.uuid ] = object;
 				
 				// check options
 				
@@ -233,33 +296,51 @@
 				
 			}
 			
-			// if contains object
+			// check uuid
 			
-			index = indexOfValue( this.objects, object );
-			
-			if ( index !== -1 ) {
+			if ( this.objectsMap[ object.uuid ] ) {
 				
-				// remove from objects list
+				this.objectsMap[ object.uuid ] = undefined;
 				
-				this.objects.splice( index, 1 );
+				// check and remove from objects, nodes, and data lists
 				
-				// remove from nodes
+				index = indexOfValue( this.objects, object );
 				
-				objectsDataRemoved = this.root.removeObject( objectData );
-				
-				// remove from objects data list
-				
-				for ( i = 0, l = objectsDataRemoved.length; i < l; i++ ) {
+				if ( index !== -1 ) {
 					
-					objectData = objectsDataRemoved[ i ];
+					this.objects.splice( index, 1 );
 					
-					index = indexOfValue( this.objectsData, objectData );
+					// remove from nodes
 					
-					if ( index !== -1 ) {
+					objectsDataRemoved = this.root.removeObject( objectData );
+					
+					// remove from objects data list
+					
+					for ( i = 0, l = objectsDataRemoved.length; i < l; i++ ) {
 						
-						this.objectsData.splice( index, 1 );
+						objectData = objectsDataRemoved[ i ];
+						
+						index = indexOfValue( this.objectsData, objectData );
+						
+						if ( index !== -1 ) {
+							
+							this.objectsData.splice( index, 1 );
+							
+						}
 						
 					}
+					
+				}
+				
+			}
+			// check and remove from deferred
+			else if ( this.objectsDeferred.length > 0 ) {
+				
+				index = indexOfPropertyWithValue( this.objectsDeferred, 'object', object );
+				
+				if ( index !== -1 ) {
+					
+					this.objectsDeferred.splice( index, 1 );
 					
 				}
 				
@@ -283,7 +364,7 @@
 					
 					objectData = objectsData[ i ];
 					
-					this.add( objectData, objectData.faces );
+					this.add( objectData, { useFaces: objectData.faces, useVertices: objectData.vertices } );
 					
 				}
 				
@@ -301,19 +382,8 @@
 				indexOctantLast,
 				objectsUpdate = [];
 			
-			// update all objects
-			
-			for ( i = 0, l = this.objects.length; i < l; i++ ) {
-				
-				object = this.objects[ i ];
-				
-				// ensure world matrices are updated
-				
-				this.updateObject( object );
-				
-			}
-			
 			// check all object data for changes in position
+			// assumes all object matrices are up to date
 			
 			for ( i = 0, l = this.objectsData.length; i < l; i++ ) {
 				
@@ -367,6 +437,46 @@
 			
 		},
 		
+		updateObject: function ( object ) {
+			
+			var i, l,
+				parentCascade = [ object ],
+				parent,
+				parentUpdate;
+			
+			// search all parents between object and root for world matrix update
+			
+			parent = object.parent;
+			
+			while( parent ) {
+				
+				parentCascade.push( parent );
+				parent = parent.parent;
+				
+			}
+			
+			for ( i = 0, l = parentCascade.length; i < l; i++ ) {
+				
+				parent = parentCascade[ i ];
+				
+				if ( parent.matrixWorldNeedsUpdate === true ) {
+					
+					parentUpdate = parent;
+					
+				}
+				
+			}
+			
+			// update world matrix starting at uppermost parent that needs update
+			
+			if ( typeof parentUpdate !== 'undefined' ) {
+				
+				parentUpdate.updateMatrixWorld();
+				
+			}
+			
+		},
+		
 		search: function ( position, radius, organizeByObject, direction ) {
 			
 			var i, l,
@@ -386,7 +496,7 @@
 			
 			// ensure radius (i.e. distance of ray) is a number
 			
-			if ( isNumber( radius ) !== true ) {
+			if ( !( radius > 0 ) ) {
 				
 				radius = Number.MAX_VALUE;
 				
@@ -471,46 +581,6 @@
 			}
 			
 			return results;
-			
-		},
-		
-		updateObject: function ( object ) {
-			
-			var i, l,
-				parentCascade = [ object ],
-				parent,
-				parentUpdate;
-			
-			// search all parents between object and root for world matrix update
-			
-			parent = object.parent;
-			
-			while( parent ) {
-				
-				parentCascade.push( parent );
-				parent = parent.parent;
-				
-			}
-			
-			for ( i = 0, l = parentCascade.length; i < l; i++ ) {
-				
-				parent = parentCascade[ i ];
-				
-				if ( parent.matrixWorldNeedsUpdate === true ) {
-					
-					parentUpdate = parent;
-					
-				}
-				
-			}
-			
-			// update world matrix starting at uppermost parent that needs update
-			
-			if ( typeof parentUpdate !== 'undefined' ) {
-				
-				parentUpdate.updateMatrixWorld();
-				
-			}
 			
 		},
 		
@@ -613,7 +683,7 @@
 			}
 			else {
 				
-				this.radius = this.object.geometry instanceof THREE.Geometry ? this.object.geometry.boundingSphere.radius : this.object.boundRadius;
+				this.radius = this.object.geometry ? this.object.geometry.boundingSphere.radius : this.object.boundRadius;
 				this.position.getPositionFromMatrix( this.object.matrixWorld );
 				
 			}
@@ -693,7 +763,7 @@
 		
 		this.id = this.tree.nodeCount++;
 		this.position = parameters.position instanceof THREE.Vector3 ? parameters.position : new THREE.Vector3();
-		this.radius = isNumber( parameters.radius ) && parameters.radius > 0 ? parameters.radius : 1;
+		this.radius = parameters.radius > 0 ? parameters.radius : 1;
 		this.indexOctant = parameters.indexOctant;
 		this.depth = 0;
 		
@@ -717,7 +787,8 @@
 		
 		if ( this.tree.scene ) {
 			
-			this.visual = new THREE.Mesh( new THREE.CubeGeometry( this.radiusOverlap * 2, this.radiusOverlap * 2, this.radiusOverlap * 2 ), new THREE.MeshBasicMaterial( { color: 0xFF0000, wireframe: true, wireframeLinewidth: 1 } ) );
+			this.visual = new THREE.Mesh( this.tree.visualGeometry, this.tree.visualMaterial );
+			this.visual.scale.set( this.radiusOverlap * 2, this.radiusOverlap * 2, this.radiusOverlap * 2 );
 			this.visual.position.copy( this.position );
 			this.tree.scene.add( this.visual );
 			
@@ -810,7 +881,7 @@
 		
 		addNode: function ( node, indexOctant ) {
 			
-			indexOctant = node.indexOctant = isNumber( indexOctant ) ? indexOctant : isNumber( node.indexOctant ) ? node.indexOctant : this.getOctantIndex( node );
+			node.indexOctant = indexOctant;
 			
 			if ( indexOfValue( this.nodesIndices, indexOctant ) === -1 ) {
 				
@@ -828,61 +899,22 @@
 			
 		},
 		
-		removeNode: function ( identifier ) {
+		removeNode: function ( indexOctant ) {
 			
-			var indexOctant = -1,
-				index,
+			var index,
 				node;
+				
+			index = indexOfValue( this.nodesIndices, indexOctant );
 			
-			// if identifier is node
-			if ( identifier instanceof THREE.OctreeNode && this.nodesByIndex[ identifier.indexOctant ] === identifier ) {
-				
-				node = identifier;
-				indexOctant = node.indexOctant;
-				
-			}
-			// if identifier is number
-			else if ( isNumber( identifier ) ) {
-				
-				indexOctant = identifier;
-				
-			}
-			// else search all nodes for identifier (slow)
-			else {
-				
-				for ( index in this.nodesByIndex ) {
-					
-					node = this.nodesByIndex[ index ];
-					
-					if ( node === identifier ) {
-						
-						indexOctant = index;
-						
-						break;
-						
-					}
-					
-				}
-				
-			}
+			this.nodesIndices.splice( index, 1 );
 			
-			// if indexOctant found
+			node = node || this.nodesByIndex[ indexOctant ];
 			
-			if ( indexOctant !== -1 ) {
+			delete this.nodesByIndex[ indexOctant ];
+			
+			if ( node.parent === this ) {
 				
-				index = indexOfValue( this.nodesIndices, indexOctant );
-				
-				this.nodesIndices.splice( index, 1 );
-				
-				node = node || this.nodesByIndex[ indexOctant ];
-				
-				delete this.nodesByIndex[ indexOctant ];
-				
-				if ( node.parent === this ) {
-					
-					node.setParent( undefined );
-					
-				}
+				node.setParent( undefined );
 				
 			}
 			
@@ -1182,7 +1214,7 @@
 					
 					// get object octant index
 					
-					indexOctant = isNumber( octants[ i ] ) ? octants[ i ] : this.getOctantIndex( object );
+					indexOctant = octants[ i ];
 					
 					// if object contained by octant, branch this tree
 					
@@ -1326,7 +1358,7 @@
 					
 					// get object octant index
 					
-					indexOctant = isNumber( octants[ i ] ) ? octants[ i ] : this.getOctantIndex( object );
+					indexOctant = octants[ i ] ;
 					
 					// if object outside this, include in calculations
 					
