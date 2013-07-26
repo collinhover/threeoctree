@@ -56,6 +56,7 @@ Download the [minified script](https://github.com/collinhover/threeoctree/blob/m
 ```html
 var octree = new THREE.Octree({
 	radius: radius, // optional, default = 1, octree will grow and shrink as needed
+	undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
 	depthMax: -1, // optional, default = -1, infinite depth
 	objectsThreshold: 8, // optional, default = 8
 	overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
@@ -90,6 +91,15 @@ Remove all octree objects associated with three object:
 octree.remove( object );
 ```
 
+#### Update
+  
+When `octree.add( object )` is called and `octree.undeferred != true`, insertion for that object is deferred until the octree is updated. Update octree to insert all deferred objects **after render cycle** to makes sure object matrices are up to date.  
+```html
+
+renderer.render( scene, camera );
+octree.update();
+```
+  
 #### Search
 
 Search octree at a position in all directions for radius distance:  
