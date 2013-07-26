@@ -1,4 +1,4 @@
-/**!
+/*!
  *
  * threeoctree.js (r59) / https://github.com/collinhover/threeoctree
  * (sparse) dynamic 3D spatial representation structure for fast searches.
