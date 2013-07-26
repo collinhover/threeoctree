@@ -20,7 +20,7 @@ This build is stable up to THREE.js ~r59
 * merge ( up to 8 smaller octree nodes > 1 larger octree node )
 * expand ( 1 smaller octree node > 1 larger octree node + original smaller octree node + up to 7 other smaller octree nodes ) 
 * contract ( 1 larger octree node + entire subtree > 1 smaller octree node )
-* update ( account for moving objects, trade-off is performance and is not recommended )
+* rebuild ( account for moving objects, trade-off is performance and is not recommended )
 * search by position and radius ( i.e. sphere search )
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
 * raycast search results using built in THREE.Raycaster additions ( does not modify the Raycaster except to add new functions )
@@ -95,9 +95,15 @@ octree.remove( object );
   
 When `octree.add( object )` is called and `octree.undeferred != true`, insertion for that object is deferred until the octree is updated. Update octree to insert all deferred objects **after render cycle** to makes sure object matrices are up to date.  
 ```html
-
 renderer.render( scene, camera );
 octree.update();
+```
+
+#### Rebuild
+
+To account for moving objects within the octree:  
+```html
+octree.rebuild();
 ```
   
 #### Search

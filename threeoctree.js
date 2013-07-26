@@ -359,7 +359,7 @@
 			
 		},
 		
-		update: function () {
+		rebuild: function () {
 			
 			var i, l,
 				node,
