@@ -37,7 +37,6 @@
 		
 		var objects = [];
 		var objectsSearch = [];
-		var searchMesh;
 		var totalFaces = 0;
 		
 		var simpleMeshCount = 2000;
@@ -96,11 +95,6 @@
 				// helps insert objects that lie over more than one node
 				overlapPct: 0.15
 			} );
-			
-			// create object to show search radius and add to scene
-			
-			searchMesh = new THREE.Mesh( new THREE.SphereGeometry( radiusSearch ), new THREE.MeshBasicMaterial( { color: 0x12C0E3, transparent: true, opacity: 0.4 } ) );
-			scene.add( searchMesh );
 			
 			// lights
 			
@@ -163,7 +157,7 @@
 			info.style.textAlign = 'center';
 			info.style.padding = '10px';
 			info.style.background = '#FFFFFF';
-			info.innerHTML = '<a href="http://threejs.org" target="_blank">three.js</a> webgl - octree (sparse & dynamic) - by <a href="http://github.com/collinhover/threeoctree" target="_blank">collinhover</a><br><small style="opacity:0.5">Lucy model from <a href="http://graphics.stanford.edu/data/3Dscanrep/">Stanford 3d scanning repository</a>(decimated with <a href="http://meshlab.sourceforge.net/">Meshlab</a>)</small>';
+			info.innerHTML = '<a href="http://threejs.org" target="_blank">three.js</a> webgl - octree (raycasting performance) - by <a href="http://github.com/collinhover/threeoctree" target="_blank">collinhover</a><br><small style="opacity:0.5">Lucy model from <a href="http://graphics.stanford.edu/data/3Dscanrep/">Stanford 3d scanning repository</a>(decimated with <a href="http://meshlab.sourceforge.net/">Meshlab</a>)</small>';
 			document.body.appendChild( info );
 			
 			// stats
@@ -237,18 +231,6 @@
 			// note: three.js includes requestAnimationFrame shim
 			
 			requestAnimationFrame( animate );
-			
-			// search octree at random location
-			
-			if ( searchInterval >= searchDelay ) {
-				
-				searchInterval = 0;
-				
-				searchOctree();
-				
-			}
-			
-			searchInterval += clock.getDelta();
 			
 			render();
 			
@@ -329,68 +311,6 @@
 				*/
 				
 			}
-			
-		}
-		
-		function searchOctree() {
-			
-			var i, il;
-			
-			// revert previous search objects to base color
-			
-			for ( i = 0, il = objectsSearch.length; i < il; i++ ) {
-				
-				var mesh = objectsSearch[ i ].object;
-				
-				if ( mesh !== intersected ) {
-					
-					mesh.material.color.setHex( baseColor );
-					
-				}
-				
-			}
-			
-			// new search position
-			searchMesh.position.set( Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf, Math.random() * radiusMax - radiusMaxHalf );
-			
-			// record start time
-			
-			var timeStart = new Date().getTime();
-			
-			// search octree from search mesh position with search radius
-			// optional third parameter: boolean, if should sort results by object when using faces/vertices in octree
-			// optional fourth parameter: vector3, direction of search when using ray (assumes radius is distance/far of ray)
-			
-			var raycaster = new THREE.Raycaster( new THREE.Vector3().copy( searchMesh.position ), new THREE.Vector3( Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1 ).normalize() );
-			objectsSearch = octree.search( raycaster.ray.origin, radiusSearch, true, raycaster.ray.direction );
-			var intersections = raycaster.intersectOctreeObjects( objectsSearch );
-			
-			// record end time
-			
-			var timeEnd = new Date().getTime();
-			
-			// set color of all objects found in search
-			
-			for ( i = 0, il = objectsSearch.length; i < il; i++ ) {
-				
-				var mesh = objectsSearch[ i ].object;
-				
-				if ( mesh !== intersected ) {
-					
-					mesh.material.color.setHex( foundColor );
-					
-				}
-				
-			}
-			
-			/*
-			
-			// results to console
-			
-			console.log( 'OCTREE: ', octree );
-			console.log( '... searched ', objects.length, ' and found ', objectsSearch.length, ' with intersections ', intersections.length, ' and took ', ( timeEnd - timeStart ), ' ms ' );
-			
-			*/
 			
 		}
 		
