@@ -1,6 +1,6 @@
 /*!
  *
- * threeoctree.js (r59) / https://github.com/collinhover/threeoctree
+ * threeoctree.js (r60) / https://github.com/collinhover/threeoctree
  * (sparse) dynamic 3D spatial representation structure for fast searches.
  *
  * @author Collin Hover / http://collinhover.com/
@@ -123,7 +123,7 @@
 		this.objectsData = [];
 		this.objectsDeferred = [];
 		
-		this.depthMax = isNumber( parameters.depthMax ) ? parameters.depthMax : -1;
+		this.depthMax = isNumber( parameters.depthMax ) ? parameters.depthMax : Infinity;
 		this.objectsThreshold = isNumber( parameters.objectsThreshold ) ? parameters.objectsThreshold : 8;
 		this.overlapPct = isNumber( parameters.overlapPct ) ? parameters.overlapPct : 0.15;
 		this.undeferred = parameters.undeferred || false;
@@ -164,9 +164,9 @@
 				
 				this.addDeferred( object, options );
 				
-			}
-			// defer add until update called
-			else {
+			} else {
+				
+				// defer add until update called
 				
 				this.objectsDeferred.push( { object: object, options: options } );
 				
@@ -216,8 +216,6 @@
 					
 				}
 				
-				// add vertices of object
-				
 				if ( useVertices === true ) {
 					
 					geometry = object.geometry;
@@ -229,9 +227,7 @@
 						
 					}
 					
-				}
-				// if adding faces of object
-				else if ( useFaces === true ) {
+				} else if ( useFaces === true ) {
 					
 					geometry = object.geometry;
 					faces = geometry.faces;
@@ -242,9 +238,7 @@
 						
 					}
 					
-				}
-				// else add object itself
-				else {
+				} else {
 					
 					this.addObjectData( object );
 					
@@ -319,9 +313,9 @@
 					
 				}
 				
-			}
-			// check and remove from deferred
-			else if ( this.objectsDeferred.length > 0 ) {
+			} else if ( this.objectsDeferred.length > 0 ) {
+				
+				// check and remove from deferred
 				
 				index = indexOfPropertyWithValue( this.objectsDeferred, 'object', object );
 				
@@ -538,8 +532,7 @@
 						
 						resultsObjectsIndices.push( object );
 						
-					}
-					else {
+					} else {
 						
 						resultData = results[ resultObjectIndex ];
 						
@@ -551,8 +544,7 @@
 						
 						resultData.faces.push( objectData.faces );
 						
-					}
-					else if ( objectData.vertices ) {
+					} else if ( objectData.vertices ) {
 						
 						resultData.vertices.push( objectData.vertices );
 						
@@ -560,8 +552,7 @@
 					
 				}
 				
-			}
-			else {
+			} else {
 				
 				results = objects;
 				
@@ -633,15 +624,13 @@
 			this.face3 = true;
 			this.utilVec31FaceBounds = new THREE.Vector3();
 			
-		}
-		else if ( part instanceof THREE.Face4 ) {
+		} else if ( part instanceof THREE.Face4 ) {
 			
 			this.face4 = true;
 			this.faces = part;
 			this.utilVec31FaceBounds = new THREE.Vector3();
 			
-		}
-		else if ( part instanceof THREE.Vector3 ) {
+		} else if ( part instanceof THREE.Vector3 ) {
 			
 			this.vertices = part;
 			
@@ -671,20 +660,17 @@
 				this.radius = this.getFace3BoundingRadius( this.object, this.faces );
 				this.position.copy( this.faces.centroid ).applyMatrix4( this.object.matrixWorld );
 				
-			}
-			else if ( this.face4 ) {
+			} else if ( this.face4 ) {
 				
 				this.radius = this.getFace4BoundingRadius( this.object, this.faces );
 				this.position.copy( this.faces.centroid ).applyMatrix4( this.object.matrixWorld );
 				
-			}
-			else if ( this.vertices ) {
+			} else if ( this.vertices ) {
 				
 				this.radius = this.object.material.size || 1;
 				this.position.copy( this.vertices ).applyMatrix4( this.object.matrixWorld );
 				
-			}
-			else {
+			} else {
 				
 				if ( this.object.geometry ) {
 					
@@ -695,15 +681,14 @@
 					}
 					
 					this.radius = this.object.geometry.boundingSphere.radius;
+					this.position.copy( this.object.geometry.boundingSphere.center ).applyMatrix4( this.object.matrixWorld );
 					
-				}
-				else {
+				} else {
 					
 					this.radius = this.object.boundRadius;
+					this.position.getPositionFromMatrix( this.object.matrixWorld );
 					
 				}
-				
-				this.position.getPositionFromMatrix( this.object.matrixWorld );
 				
 			}
 			
@@ -769,8 +754,7 @@
 			
 			this.tree = parameters.tree;
 			
-		}
-		else if ( parameters.parent instanceof THREE.OctreeNode !== true ) {
+		} else if ( parameters.parent instanceof THREE.OctreeNode !== true ) {
 			
 			parameters.root = this;
 			
@@ -844,8 +828,7 @@
 				this.tree = this.parent.tree;
 				this.depth = this.parent.depth + 1;
 				
-			}
-			else {
+			} else {
 				
 				this.depth = 0;
 				
@@ -956,15 +939,13 @@
 				
 				node.addObject( object );
 				
-			}
-			// if object lies outside bounds, add to parent node
-			else if ( indexOctant < -1 && this.parent instanceof THREE.OctreeNode ) {
+			} else if ( indexOctant < -1 && this.parent instanceof THREE.OctreeNode ) {
+				
+				// if object lies outside bounds, add to parent node
 				
 				this.parent.addObject( object );
 				
-			}
-			// else add to self
-			else {
+			} else {
 				
 				// add to this objects list
 				
@@ -1061,9 +1042,9 @@
 					
 				}
 				
-			}
-			// search each object data for object and remove (slow)
-			else {
+			} else {
+			
+				// search each object data for object and remove (slow)
 				
 				for ( i = this.objects.length - 1; i >= 0; i-- ) {
 					
@@ -1164,16 +1145,16 @@
 					objectsSplit.push( object );
 					objectsSplitOctants.push( indexOctant );
 				
-				}
-				// if lies outside radius
-				else if ( indexOctant < -1 ) {
+				} else if ( indexOctant < -1 ) {
+					
+					// lies outside radius
 					
 					objectsExpand.push( object );
 					objectsExpandOctants.push( indexOctant );
 					
-				}
-				// else if lies across bounds between octants
-				else {
+				} else {
+				
+					// lies across bounds between octants
 					
 					objectsRemaining.push( object );
 					
@@ -1217,7 +1198,7 @@
 			
 			// if not at max depth
 			
-			if ( this.tree.depthMax < 0 || this.depth < this.tree.depthMax ) {
+			if ( this.depth < this.tree.depthMax ) {
 				
 				objects = objects || this.objects;
 				
@@ -1243,9 +1224,7 @@
 						
 						node.addObject( object );
 						
-					}
-					// else add to remaining
-					else {
+					} else {
 						
 						objectsRemaining.push( object );
 						
@@ -1261,8 +1240,7 @@
 					
 				}
 				
-			}
-			else {
+			} else {
 				
 				objectsRemaining = this.objects;
 				
@@ -1287,9 +1265,7 @@
 				
 				node = this.nodesByIndex[ indexOctant ];
 				
-			}
-			// create new
-			else {
+			} else {
 				
 				// properties
 				
@@ -1353,7 +1329,7 @@
 			
 			// handle max depth down tree
 			
-			if ( this.tree.depthMax < 0 || this.tree.root.getDepthEnd() < this.tree.depthMax ) {
+			if ( this.tree.root.getDepthEnd() < this.tree.depthMax ) {
 				
 				objects = objects || this.objects;
 				octants = octants || [];
@@ -1395,8 +1371,7 @@
 							
 							iom[ this.tree.INDEX_OUTSIDE_POS_X ].count++;
 							
-						}
-						else if ( flagsOutside & this.tree.FLAG_NEG_X ) {
+						} else if ( flagsOutside & this.tree.FLAG_NEG_X ) {
 							
 							iom[ this.tree.INDEX_OUTSIDE_NEG_X ].count++;
 							
@@ -1408,8 +1383,7 @@
 							
 							iom[ this.tree.INDEX_OUTSIDE_POS_Y ].count++;
 							
-						}
-						else if ( flagsOutside & this.tree.FLAG_NEG_Y ) {
+						} else if ( flagsOutside & this.tree.FLAG_NEG_Y ) {
 							
 							iom[ this.tree.INDEX_OUTSIDE_NEG_Y ].count++;
 							
@@ -1421,8 +1395,7 @@
 							
 							iom[ this.tree.INDEX_OUTSIDE_POS_Z ].count++;
 							
-						}
-						else if ( flagsOutside & this.tree.FLAG_NEG_Z ) {
+						} else if ( flagsOutside & this.tree.FLAG_NEG_Z ) {
 							
 							iom[ this.tree.INDEX_OUTSIDE_NEG_Z ].count++;
 							
@@ -1432,9 +1405,7 @@
 						
 						objectsExpand.push( object );
 						
-					}
-					// else add to remaining
-					else {
+					} else {
 						
 						objectsRemaining.push( object );
 						
@@ -1544,8 +1515,7 @@
 					
 				}
 				
-			}
-			else {
+			} else {
 				
 				objectsRemaining = objects;
 				
@@ -1733,7 +1703,6 @@
 			
 			// handle type
 			
-			// object data
 			if ( objectData instanceof THREE.OctreeObjectData ) {
 				
 				radiusObj = objectData.radius;
@@ -1744,9 +1713,7 @@
 				
 				objectData.positionLast.copy( positionObj );
 				
-			}
-			// node
-			else if ( objectData instanceof THREE.OctreeNode ) {
+			} else if ( objectData instanceof THREE.OctreeNode ) {
 				
 				positionObj = objectData.position;
 				
@@ -1801,42 +1768,46 @@
 			
 			// return octant index from delta xyz
 			
-			// x right
 			if ( deltaX - radiusObj > -overlap ) {
+				
+				// x right
 				
 				indexOctant = indexOctant | 1;
 				
-			}
-			// x left
-			else if ( !( deltaX + radiusObj < overlap ) ) {
+			} else if ( !( deltaX + radiusObj < overlap ) ) {
+				
+				// x left
 				
 				objectData.indexOctant = this.tree.INDEX_INSIDE_CROSS;
 				return objectData.indexOctant;
 				
 			}
 			
-			// y right
 			if ( deltaY - radiusObj > -overlap ) {
+				
+				// y right
 				
 				indexOctant = indexOctant | 2;
 				
-			}
-			// y left
-			else if ( !( deltaY + radiusObj < overlap ) ) {
+			} else if ( !( deltaY + radiusObj < overlap ) ) {
+				
+				// y left
 				
 				objectData.indexOctant = this.tree.INDEX_INSIDE_CROSS;
 				return objectData.indexOctant;
 				
 			}
 			
-			// z right
+			
 			if ( deltaZ - radiusObj > -overlap ) {
+				
+				// z right
 				
 				indexOctant = indexOctant | 4;
 				
-			}
-			// z left
-			else if ( !( deltaZ + radiusObj < overlap ) ) {
+			} else if ( !( deltaZ + radiusObj < overlap ) ) {
+				
+				// z left
 				
 				objectData.indexOctant = this.tree.INDEX_INSIDE_CROSS;
 				return objectData.indexOctant;
@@ -1886,8 +1857,7 @@
 				
 				intersects = this.intersectRay( position, direction, radius, directionPct );
 				
-			}
-			else {
+			} else {
 				
 				intersects = this.intersectSphere( position, radius );
 				
@@ -1926,22 +1896,19 @@
 			
 			if ( px < this.left ) {
 				distance -= Math.pow( px - this.left, 2 );
-			}
-			else if ( px > this.right ) {
+			} else if ( px > this.right ) {
 				distance -= Math.pow( px - this.right, 2 );
 			}
 			
 			if ( py < this.bottom ) {
 				distance -= Math.pow( py - this.bottom, 2 );
-			}
-			else if ( py > this.top ) {
+			} else if ( py > this.top ) {
 				distance -= Math.pow( py - this.top, 2 );
 			}
 			
 			if ( pz < this.back ) {
 				distance -= Math.pow( pz - this.back, 2 );
-			}
-			else if ( pz > this.front ) {
+			} else if ( pz > this.front ) {
 				distance -= Math.pow( pz - this.front, 2 );
 			}
 			
@@ -1998,8 +1965,7 @@
 
 				}
 				
-			}
-			else {
+			} else {
 
 				depth = !depth || this.depth > depth ? this.depth : depth;
 
@@ -2145,8 +2111,7 @@
 				
 			}
 			
-		}
-		else {
+		} else {
 			
 			intersects = this.intersectObject( object, recursive );
 			
