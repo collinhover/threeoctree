@@ -1,4 +1,4 @@
-﻿threeoctree.js (r59)
+﻿threeoctree.js (r60)
 ========
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
@@ -6,7 +6,7 @@
 The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
 ```html
-This build is stable up to THREE.js ~r59 
+This build is stable up to THREE.js ~r60
 (see migration notes below, updates to latest THREE build coming!)  
 ```
   
@@ -30,7 +30,7 @@ This build is stable up to THREE.js ~r59
 * reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
 
 ## Migration  
-#### r56 → r59  
+#### r56 → r60  
 - Octree can now handle vertices (and particle systems)  
 - `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`  
 - `OctreeObjectData.usesFaces` removed, use `.faces`, `.face3`, or `.face4`  
