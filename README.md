@@ -57,7 +57,7 @@ Download the [minified script](https://github.com/collinhover/threeoctree/blob/m
 var octree = new THREE.Octree({
 	radius: radius, // optional, default = 1, octree will grow and shrink as needed
 	undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
-	depthMax: -1, // optional, default = -1, infinite depth
+	depthMax: Infinity, // optional, default = Infinity, infinite depth
 	objectsThreshold: 8, // optional, default = 8
 	overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
 	scene: scene // optional, pass scene as parameter only if you wish to visualize octree
