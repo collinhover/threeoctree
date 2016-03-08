@@ -646,6 +646,13 @@
 			this.update();
 			
 		}
+		else {
+
+			// Generic object
+			this.position.set( object.x, object.y, object.z );
+			this.radius = object.radius;
+
+		}
 		
 		this.positionLast = this.position.clone();
 		

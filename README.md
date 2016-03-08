@@ -83,7 +83,15 @@ Add three object's vertices as octree objects:
 ```html
 octree.add( object, { useVertices: true } );
 ```
-( note that only vertices OR faces can be used, and useVertices overrides useFaces )  
+( note that only vertices OR faces can be used, and useVertices overrides useFaces )
+
+Add generic object with x, y, z position and radius and id reference to 3D object:
+
+```html
+var object = {x: x, y: y, z: z, radius: radius, id: id}
+octree.add( object );
+```
+( note this method can improve performance if you need to load the tree with tens of thousands of objects )
 
 Remove all octree objects associated with three object:  
   
