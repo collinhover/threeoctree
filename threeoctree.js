@@ -561,6 +561,57 @@
 			return results;
 			
 		},
+
+		findClosestVertex: function(position, radius) {
+
+			var search = this.search(position, radius, true);
+
+			if (!search[0]) {
+
+				return null;
+
+			}
+
+			var object = search[0].object,
+				vertices = search[0].vertices;
+
+			if( vertices.length === 0 ){
+
+				return null;
+
+			}
+
+			var distance,
+				vertex = null,
+				localPosition = object.worldToLocal(position.clone());
+
+			for (var i = 0, il = vertices.length; i <il; i++) {
+
+				distance = vertices[i].distanceTo(localPosition);
+
+				if (distance > radius) {
+
+					continue;
+
+				}
+
+				// use distance in new comparison to find the closest point
+
+				radius = distance;
+
+				vertex = vertices[i];
+
+			}
+
+			if (vertex === null) {
+
+				return null;
+
+			}
+
+			return object.localToWorld(vertex);
+
+		},
 		
 		setRoot: function ( root ) { 
 			
