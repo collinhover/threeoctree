@@ -7,7 +7,7 @@ The aim of this project is to create a fully featured search tree for the [THREE
   
 ```html
 This build is stable up to THREE.js ~r60
-(see migration notes below, updates to latest THREE build coming!)  
+(see migration notes below, updates to latest THREE build on hold as my time is required on other projects)  
 ```
   
 ## Features (+ [Example](http://collinhover.github.com/threeoctree))
