@@ -2135,7 +2135,7 @@
 	=====================================================*/
 	
 	THREE.Raycaster.prototype.intersectOctreeObject = function ( object, recursive ) {
-		
+
 		var intersects,
 			octreeObject,
 			facesAll,
@@ -2174,13 +2174,13 @@
 			intersects = this.intersectObject( object, recursive );
 			
 		}
-		
+
 		return intersects;
 		
 	};
 	
 	THREE.Raycaster.prototype.intersectOctreeObjects = function ( objects, recursive ) {
-		
+
 		var i, il,
 			intersects = [];
 		
@@ -2189,7 +2189,11 @@
 			intersects = intersects.concat( this.intersectOctreeObject( objects[ i ], recursive ) );
 		
 		}
-		
+
+		intersects.sort(function (a, b) {
+			return a.distance - b.distance;
+		});
+
 		return intersects;
 		
 	};
