@@ -724,8 +724,14 @@
 				this.position.copy( this.faces.centroid ).applyMatrix4( this.object.matrixWorld );
 				
 			} else if ( this.vertices ) {
-				
-				this.radius = this.object.material.size || 1;
+
+				if ( this.object.geometry.boundingSphere === null ) {
+
+					this.object.geometry.computeBoundingSphere();
+
+				}
+
+				this.radius = this.object.geometry.boundingSphere.radius;
 				this.position.copy( this.vertices ).applyMatrix4( this.object.matrixWorld );
 				
 			} else {
