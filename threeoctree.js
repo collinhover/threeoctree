@@ -2134,8 +2134,8 @@
 
 	=====================================================*/
 	
-	THREE.Raycaster.prototype.intersectOctreeObject = function ( object, recursive, sort ) {
-		
+	THREE.Raycaster.prototype.intersectOctreeObject = function ( object, recursive ) {
+
 		var intersects,
 			octreeObject,
 			facesAll,
@@ -2159,7 +2159,7 @@
 			
 			// intersect
 			
-			intersects = this.intersectObject( object, recursive, sort );
+			intersects = this.intersectObject( object, recursive );
 			
 			// revert object geometry's faces
 			
@@ -2171,18 +2171,21 @@
 			
 		} else {
 			
-			intersects = this.intersectObject( object, recursive, sort );
+			intersects = this.intersectObject( object, recursive );
 			
+		}
+
+		if( sort ) {
+			intersects.sort(function (a, b) {
+				return a.distance - b.distance;
+			});
 		}
 		
 		return intersects;
 		
 	};
 	
-	THREE.Raycaster.prototype.intersectOctreeObjects = function ( objects, recursive, sort ) {
-
-		// To sort (true) or not sort (false) results in the intersects array by distance, defaults to true
-		sort = sort === undefined ? true : sort;
+	THREE.Raycaster.prototype.intersectOctreeObjects = function ( objects, recursive ) {
 
 		var i, il,
 			intersects = [];
@@ -2193,11 +2196,9 @@
 		
 		}
 
-		if( sort ) {
-			intersects.sort(function (a, b) {
-				return a.distance - b.distance;
-			});
-		}
+		intersects.sort(function (a, b) {
+			return a.distance - b.distance;
+		});
 
 		return intersects;
 		
