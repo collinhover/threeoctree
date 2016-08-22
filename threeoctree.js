@@ -2175,12 +2175,6 @@
 			
 		}
 
-		if( sort ) {
-			intersects.sort(function (a, b) {
-				return a.distance - b.distance;
-			});
-		}
-		
 		return intersects;
 		
 	};
