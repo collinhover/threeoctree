@@ -609,7 +609,7 @@
 
 			}
 
-			return object.localToWorld(vertex);
+			return object.localToWorld(vertex.clone());
 
 		},
 		
