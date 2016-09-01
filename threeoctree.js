@@ -781,50 +781,7 @@
 
 		},
 
-		distanceTo: function( point ) {
-
-			if ( this.face ) {
-
-				var face = this.face,
-					faceIndex = geometry.faces.indexOf( face ),
-					fvA = vertices[ face.a ],
-					fvB = vertices[ face.b ],
-					fvC = vertices[ face.c ];
-
-				intersection = checkFaceIntersection( object, raycaster, ray, fvA, fvB, fvC, intersectionPoint );
-
-				if ( intersection ) {
-
-					if ( uvs ) {
-
-						var uvs_f = uvs[ f ];
-						uvA.copy( uvs_f[ 0 ] );
-						uvB.copy( uvs_f[ 1 ] );
-						uvC.copy( uvs_f[ 2 ] );
-
-						intersection.uv = uvIntersection( intersectionPoint, fvA, fvB, fvC, uvA, uvB, uvC );
-
-					}
-
-					intersection.face = face;
-					intersection.faceIndex = faceIndex;
-					intersects.push( intersection );
-
-				}
-
-			} else if ( this.vertex ) {
-
-				object.raycast( raycaster, intersects );
-
-			} else {
-
-				object.raycast( raycaster, intersects );
-
-			}
-
-		},
-
-		// Code partly borrowed from THREE.Mesh
+		// Code borrowed from THREE.Mesh
 		raycast: function( raycaster, intersects ) {
 
 			var inverseMatrix = new THREE.Matrix4();
@@ -848,8 +805,21 @@
 			var intersectionPoint = new THREE.Vector3();
 			var intersectionPointWorld = new THREE.Vector3();
 
+			function uvIntersection( point, p1, p2, p3, uv1, uv2, uv3 ) {
 
-			function checkFaceIntersection( object, raycaster, ray, pA, pB, pC, point ) {
+				THREE.Triangle.barycoordFromPoint( point, p1, p2, p3, barycoord );
+
+				uv1.multiplyScalar( barycoord.x );
+				uv2.multiplyScalar( barycoord.y );
+				uv3.multiplyScalar( barycoord.z );
+
+				uv1.add( uv2 ).add( uv3 );
+
+				return uv1.clone();
+
+			}
+
+			function checkIntersection( object, raycaster, ray, pA, pB, pC, point ) {
 
 				var intersect;
 				var material = object.material;
@@ -880,12 +850,6 @@
 				};
 
 			}
-
-			//--------------------------------------
-
-			// return intersects;
-
-			//--------------------------------------
 
 			return function raycast( raycaster, intersects ) {
 
@@ -923,13 +887,53 @@
 
 				if ( this.face ) {
 
+					var isFaceMaterial = material instanceof THREE.MultiMaterial;
+					var materials = isFaceMaterial === true ? material.materials : null;
+
 					var face = this.face,
 						faceIndex = geometry.faces.indexOf( face ),
 						fvA = vertices[ face.a ],
 						fvB = vertices[ face.b ],
 						fvC = vertices[ face.c ];
 
-					intersection = checkFaceIntersection( object, raycaster, ray, fvA, fvB, fvC, intersectionPoint );
+					var faceMaterial = isFaceMaterial === true ? materials[ face.materialIndex ] : material;
+
+					if ( faceMaterial === undefined ) return;
+
+					if ( faceMaterial.morphTargets === true ) {
+
+						var morphTargets = geometry.morphTargets;
+						var morphInfluences = this.morphTargetInfluences;
+
+						vA.set( 0, 0, 0 );
+						vB.set( 0, 0, 0 );
+						vC.set( 0, 0, 0 );
+
+						for ( var t = 0, tl = morphTargets.length; t < tl; t ++ ) {
+
+							var influence = morphInfluences[ t ];
+
+							if ( influence === 0 ) continue;
+
+							var targets = morphTargets[ t ].vertices;
+
+							vA.addScaledVector( tempA.subVectors( targets[ face.a ], fvA ), influence );
+							vB.addScaledVector( tempB.subVectors( targets[ face.b ], fvB ), influence );
+							vC.addScaledVector( tempC.subVectors( targets[ face.c ], fvC ), influence );
+
+						}
+
+						vA.add( fvA );
+						vB.add( fvB );
+						vC.add( fvC );
+
+						fvA = vA;
+						fvB = vB;
+						fvC = vC;
+
+					}
+
+					intersection = checkIntersection( object, raycaster, ray, fvA, fvB, fvC, intersectionPoint );
 
 					if ( intersection ) {
 
