@@ -23,7 +23,7 @@ This build is stable up to THREE.js ~r78
 * rebuild ( account for moving objects, trade-off is performance and is not recommended )
 * search by position and radius ( i.e. sphere search )
 * search by ray using position, direction, and distance/far ( does not include specific collisions, only potential )
-* raycast search results using built in THREE.Raycaster additions ( does not modify the Raycaster except to add new functions )
+* raycast search results using built in `THREE.Raycaster` additions ( does not modify the Raycaster except to add new functions )
     
 ## Needs
 
