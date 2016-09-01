@@ -34,6 +34,7 @@ dwsync.xml
 intermediate
 publish
 .idea
+bower_components
 
 # build script local files
 build/buildinfo.properties
