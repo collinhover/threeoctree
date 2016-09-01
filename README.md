@@ -37,9 +37,10 @@ This build is stable up to THREE.js ~r78
 - Removed `THREE.Face4` support and its corresponding methods (`THREE.Face4` was deprecated in r60)
 - Removed exchanging of faces array on geometry while intersecting `THREE.Octree`
 - Removed getting radius from `object.boundRadius` (was replaced in r66(?) by `object.geometry.boundingSphere.radius`)
-- renamed `this.vertices` inside `THREE.OctreeObjectData` to `this.vertex` (it holds an instance of `THREE.Vector3`)
-- renamed `this.faces` inside `THREE.OctreeObjectData` to `this.face` (it holds an instance of `THREE.Face3`)
-- renamed `getFace3BoundingRadius` back to previous `getFaceBoundingRadius` (since `THREE.Face4` support is removed)
+- Renamed `this.vertices` inside `THREE.OctreeObjectData` to `this.vertex` (it holds an instance of `THREE.Vector3`)
+- Renamed `this.faces` inside `THREE.OctreeObjectData` to `this.face` (it holds an instance of `THREE.Face3`)
+- Renamed `getFace3BoundingRadius` back to previous `getFaceBoundingRadius` (since `THREE.Face4` support is removed)
+- Changed code formatting @mrdoob style (https://zz85.github.io/mrdoobapproves/)
 #### r56 → r60  
 - Octree can now handle vertices (and particle systems)  
 - `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`  
