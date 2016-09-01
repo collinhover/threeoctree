@@ -56,13 +56,28 @@ This build is stable up to THREE.js ~r78
 - `Ray.intersectOctreeObjects/intersectOctreeObject` to `Raycaster.intersectOctreeObjects/intersectOctreeObject`  
 - `Vector3/Matrix4` functions from THREE r51 to r56 ( see: https://github.com/mrdoob/three.js/wiki/Migration )  
   
-## Usage
+## Installation
 
 Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/threeoctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
 
 ```html
 <script src="js/three.min.js"></script>
 <script src="js/threeoctree.min.js"></script>
+```
+
+You can also use bower for installing. Add the following line to the dependencies inside your `bower.json` file:
+```json
+  "dependencies": {
+    ...
+    "threeoctree": "https://github.com/collinhover/threeoctree"
+    ...
+  }
+```
+In case you want to use this library with a different version then the shipped three.js r78 or when you have conflicts when running `bower update` with the `three.js` version you can surpress this by adding the three.js library/dependency of your choice inside the resolutions key as follows:
+```json
+  "resolutions": {
+    "three.js": "r77"
+  }
 ```
 
 #### Initialize
