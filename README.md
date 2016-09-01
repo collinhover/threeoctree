@@ -6,7 +6,7 @@
 The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
   
 ```html
-This build is stable up to THREE.js ~r60
+This build is stable up to THREE.js ~r78
 (updates to latest THREE build on hold as my time is required on other projects)  
 ```
   
@@ -30,6 +30,16 @@ This build is stable up to THREE.js ~r60
 * reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
 
 ## Migration  
+#### r60 → r78  
+- Removed extending `THREE.RayCaster` with custom methods
+- Added `raycast` method on `THREE.Octree`
+- Added `raycast` method on `THREE.OctreeObjectData`
+- Removed `THREE.Face4` support and its corresponding methods (`THREE.Face4` was deprecated in r60)
+- Removed exchanging of faces array on geometry while intersecting `THREE.Octree`
+- Removed getting radius from `object.boundRadius` (was replaced in r66(?) by `object.geometry.boundingSphere.radius`)
+- renamed `this.vertices` inside `THREE.OctreeObjectData` to `this.vertex` (it holds an instance of `THREE.Vector3`)
+- renamed `this.faces` inside `THREE.OctreeObjectData` to `this.face` (it holds an instance of `THREE.Face3`)
+- renamed `getFace3BoundingRadius` back to previous `getFaceBoundingRadius` (since `THREE.Face4` support is removed)
 #### r56 → r60  
 - Octree can now handle vertices (and particle systems)  
 - `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`  
@@ -136,40 +146,40 @@ octree.search( ray.origin, ray.far, true, ray.direction );
 
 #### Intersections
 
-This octree adds two functions to the THREE.Raycaster class to help use the search results: .intersectOctreeObjects(), and .intersectOctreeObject(). In most cases you will use only the former:  
+An octree can be passed to the raycaster immediately as you do with normal intersecting: 
   
 ```html
-var octreeResults = octree.search( rayCaster.ray.origin, rayCaster.ray.far, true, rayCaster.ray.direction )
-var intersections = rayCaster.intersectOctreeObjects( octreeResults );
+// octree is an instance of `THREE.Octree`
+var objects = rayCaster.intersectObject( octree )
+```
+
+If you want to intersect an array of octree results you can pass them also as normally:
+ 
+```html
+// octreeResults is an array of `THREE.OctreeObjectData`
+var objects = rayCaster.intersectObjects( octreeResults )
 ```
 
 If you wish to get an intersection from a user's mouse click, this is easy enough:
 
 ```html
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+
 function onClick ( event ) {
 	
-	// record mouse x/y position as a 3D vector
-	
-	var mousePosition = new THREE.Vector3();
-	mousePosition.x = ( event.pageX / window.innerWidth ) * 2 - 1;
-	mousePosition.y = -( event.pageY / window.innerHeight ) * 2 + 1;
-	mousePosition.z = 0.5;
+	// calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
 
-	// use THREE.Projector to unproject mouse position into scene via camera
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;		
 	
-	var projector = new THREE.Projector();
-	projector.unprojectVector( mousePosition, camera );
-
-	// create new ray caster
-	// origin is camera position
-	// direction is unprojected mouse position - camera position
+	raycaster.setFromCamera( mouse, camera );	
 	
-	var origin = new THREE.Vector3().copy( camera.position );
-	var direction = new THREE.Vector3().copy( mousePosition.sub( camera.position ) ).normalize();
-	var rayCaster = new THREE.Raycaster( origin, direction );
-
-	// now search octree and find intersections using method above
+	// now search octree by passing it to the rayCaster as mentioned above
 	...
+    var intersects = raycaster.intersectObjects( scene.children );
 	
 }
 ```
