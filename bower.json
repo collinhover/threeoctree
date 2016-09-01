@@ -1,0 +1,16 @@
+{
+  "name": "threeoctree.js",
+  "version": "0.9",
+  "authors": [
+  ],
+  "dependencies": {
+    "three.js": "https://github.com/mrdoob/three.js.git#r78"
+  },
+  "ignore": [
+    "examples",
+    "test",
+    "bower_components",
+    "README.md",
+    ".gitignore"
+  ]
+}
