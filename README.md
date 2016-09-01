@@ -29,7 +29,8 @@ This build is stable up to THREE.js ~r78
 
 * reworking / optimization of insert and removal ( currently we have to force a transform update in case the object is added before first three update )
 
-## Migration  
+## Migration
+
 #### r60 → r78  
 - Removed extending `THREE.RayCaster` with custom methods
 - Added `raycast` method on `THREE.Octree`
@@ -41,12 +42,14 @@ This build is stable up to THREE.js ~r78
 - Renamed `this.faces` inside `THREE.OctreeObjectData` to `this.face` (it holds an instance of `THREE.Face3`)
 - Renamed `getFace3BoundingRadius` back to previous `getFaceBoundingRadius` (since `THREE.Face4` support is removed)
 - Changed code formatting @mrdoob style (https://zz85.github.io/mrdoobapproves/)
+
 #### r56 → r60  
 - Octree can now handle vertices (and particle systems)  
 - `add` method now takes a options object as the second parameter, which may contain booleans for `useFaces` and `useVertices`  
 - `OctreeObjectData.usesFaces` removed, use `.faces`, `.face3`, or `.face4`  
 - `OctreeObjectData.getFaceBoundingRadius` split into `.getFace3BoundingRadius` and `getFace4BoundingRadius` 
-- `OctreeObjectData.vertices` added  
+- `OctreeObjectData.vertices` added
+
 #### r51 → r56  
 - Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
 - Script renamed from `ThreeOctree.js` to `threeoctree.js`  
