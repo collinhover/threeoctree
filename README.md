@@ -1,6 +1,3 @@
-
-## Version compatible with latest THREEJS: https://github.com/mrdoob/three.js/blob/dev/examples/js/Octree.js
-
 ﻿threeoctree.js (r60)
 ========
 
