@@ -6,14 +6,14 @@
 
 #### (sparse + dynamic) 3D spatial representation structure for fast searches ####
 
-The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).   
+The aim of this project is to create a fully featured search tree for the [THREE.js WebGL library](https://threejs.org/).   
   
 ```html
 This build is stable up to THREE.js ~r60
 (updates to latest THREE build on hold as my time is required on other projects)  
 ```
   
-## Features (+ [Example](http://collinhover.github.com/threeoctree))
+## Features (+ [Example](https://collinhover.github.io/threeoctree/))
 
 * handle complete objects ( i.e. 1 center position for entire geometry )
 * handle object faces ( i.e. split a complex mesh's geometry into a series of pseudo-objects )
@@ -47,7 +47,7 @@ This build is stable up to THREE.js ~r60
   
 ## Usage
 
-Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/threeoctree.min.js) and include it in your html after the [THREE.js WebGL library](http://mrdoob.github.com/three.js/).
+Download the [minified script](https://github.com/collinhover/threeoctree/blob/master/threeoctree.min.js) and include it in your html after the [THREE.js WebGL library](https://threejs.org/).
 
 ```html
 <script src="js/three.min.js"></script>
@@ -179,6 +179,6 @@ function onClick ( event ) {
 
 ---
   
-*Copyright (C) 2012 [Collin Hover](http://collinhover.com/)*  
-*Based on Dynamic Octree by [Piko3D](http://www.piko3d.com/) and Octree by [Marek Pawlowski](pawlowski.it)*  
-*For full license and information, see [LICENSE](https://collinhover.github.com/threeoctree/LICENSE).*   
+*Copyright (C) 2012 [Collin Hover](https://collinhover.com/)*  
+*Based on Dynamic Octree by [Piko3D](https://www.piko3d.net/) and Octree by [Marek Pawlowski](pawlowski.it)*  
+*For full license and information, see [LICENSE](https://github.com/collinhover/threeoctree/blob/master/LICENSE).*   
