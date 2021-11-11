@@ -43,7 +43,7 @@ This build is stable up to THREE.js ~r60
 - Function naming conventions from `hello_world()` to THREE style `helloWorld()`  
 - Script renamed from `ThreeOctree.js` to `threeoctree.js`  
 - `Ray.intersectOctreeObjects/intersectOctreeObject` to `Raycaster.intersectOctreeObjects/intersectOctreeObject`  
-- `Vector3/Matrix4` functions from THREE r51 to r56 ( see: https://github.com/mrdoob/three.js/wiki/Migration )  
+- `Vector3/Matrix4` functions from THREE r51 to r56 ( see: https://github.com/mrdoob/three.js/wiki/Migration-Guide )  
   
 ## Usage
 
